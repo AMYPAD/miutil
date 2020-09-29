@@ -11,7 +11,16 @@ import numpy as np
 
 from .utils import create_dir
 
+RE_NII_GZ = re.compile(r"^(.+)(\.nii(?:\.gz)?)$", flags=re.I)
+RE_GZ = re.compile(r"^(.+)(\.gz)$", flags=re.I)
 log = logging.getLogger(__name__)
+
+
+def file_parts(fname, regex=RE_NII_GZ):
+    """/path/file.nii.gz -> /path, file, .nii.gz"""
+    base = os.path.basename(fname)
+    root, ext = regex.search(base).groups()
+    return os.path.dirname(fname), root, ext
 
 
 def nii_ugzip(imfile, outpath=""):
@@ -202,7 +211,7 @@ def niisort(fims, memlim=True):
     sortlist = []
 
     for f in fims:
-        if re.search(r"\.nii(\.gz)?$", f):
+        if RE_NII_GZ.search(f):
             Nim += 1
             frm = re.search(r"(?<=_frm)\d*", f)
             if frm:
@@ -312,9 +321,9 @@ def nii_modify(nii_fd, fimout="", outpath="", fcomment="", voxel_range=None):
     if not fimout:
         if not fcomment:
             fcomment = "_nimpa-modified"
-        fout = os.path.basename(fnii).split(".nii")[0] + fcomment + ".nii.gz"
+        fout = file_parts(fnii)[1] + fcomment + ".nii.gz"
     else:
-        fout = fimout.rsplit(".", 1)[0] + ".nii.gz"
+        fout = os.path.splitext(fimout)[0] + ".nii.gz"
     log.debug("output floating and affine file names:%s", fout)
     fout = os.path.join(opth, fout)
 
