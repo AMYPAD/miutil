@@ -19,3 +19,14 @@ jobs:
     - if: |
         ! startsWith(matrix.python, '2')
       run: black --check .
+  deploy:
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+    needs: check
+    name: PyPI Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: casperdcl/deploy-pypi@v1
+        with:
+           password: ${{ secrets.pypi_token }}
+           build: true
