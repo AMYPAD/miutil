@@ -1,28 +1,31 @@
-AMYPAD Core
-===========
+miutil
+======
+
+Medical imaging utilities.
 
 |Versions| |Py-Versions| |Tests| |LICENCE|
 
-Basic functionality needed for `AMYPAD <https://github.com/AMYPAD/AMYPAD>`_.
+Basic functionality needed for `AMYPAD <https://github.com/AMYPAD/AMYPAD>`_
+and `NiftyPET <https://github.com/NiftyPET/NiftyPET>`_.
 
 
 Install
 -------
 
 Intended for inclusion in requirements for other packages.
-The package name is ``amypad-core``. Options include:
+The package name is ``miutil``. Options include:
 
 - nii
 
 To install options and their dependencies,
-use the package name ``amypad-core[option1,option2]``.
+use the package name ``miutil[option1,option2]``.
 
 
-.. |Tests| image:: https://img.shields.io/github/workflow/status/AMYPAD/amypad-core/Test
-   :target: https://github.com/AMYPAD/amypad-core/actions
-.. |Versions| image:: https://img.shields.io/pypi/v/amypad-core.svg
-   :target: https://github.com/AMYPAD/amypad-core/releases
-.. |Py-Versions| image:: https://img.shields.io/pypi/pyversions/amypad-core.svg?logo=python&logoColor=white
-   :target: https://pypi.org/project/amypad-core
-.. |LICENCE| image:: https://img.shields.io/pypi/l/amypad-core.svg
-   :target: https://raw.githubusercontent.com/AMYPAD/amypad-core/master/LICENCE.md
+.. |Tests| image:: https://img.shields.io/github/workflow/status/AMYPAD/miutil/Test
+   :target: https://github.com/AMYPAD/miutil/actions
+.. |Versions| image:: https://img.shields.io/pypi/v/miutil.svg
+   :target: https://github.com/AMYPAD/miutil/releases
+.. |Py-Versions| image:: https://img.shields.io/pypi/pyversions/miutil.svg?logo=python&logoColor=white
+   :target: https://pypi.org/project/miutil
+.. |LICENCE| image:: https://img.shields.io/pypi/l/miutil.svg
+   :target: https://raw.githubusercontent.com/AMYPAD/miutil/master/LICENCE.md

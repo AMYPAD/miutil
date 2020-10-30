@@ -9,7 +9,7 @@ import re
 import nibabel as nib
 import numpy as np
 
-from ..utils import create_dir
+from ..fdio import create_dir
 
 RE_NII_GZ = re.compile(r"^(.+)(\.nii(?:\.gz)?)$", flags=re.I)
 RE_GZ = re.compile(r"^(.+)(\.gz)$", flags=re.I)
