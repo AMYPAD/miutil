@@ -22,19 +22,19 @@ class imscroll:
             **kwargs: passed to `matplotlib.pyplot.imshow()`.
         """
         if isinstance(vol, str) and path.exists(vol):
-            im = imread(vol)
+            vol = imread(vol)
 
         view = view.lower()
         if view in ["c", "coronal", "y"]:
-            im = im.transpose(1, 0, 2)
+            vol = vol.transpose(1, 0, 2)
         elif view in ["s", "saggital", "x"]:
-            im = im.transpose(2, 0, 1)
+            vol = vol.transpose(2, 0, 1)
 
-        self.index = im.shape[0] // 2
+        self.index = vol.shape[0] // 2
         self.fig, self.ax = plt.subplots()
-        self.ax.imshow(im[self.index], **kwargs)
-        self.ax.set_title(f"slice #{self.index}")
-        self.vol = im
+        self.ax.imshow(vol[self.index], **kwargs)
+        self.ax.set_title("slice #{self.index}".format(self=self))
+        self.vol = vol
         self.key = {i: False for i in self.SUPPORTED_KEYS}
         self.fig.canvas.mpl_connect("scroll_event", self.scroll)
         self.fig.canvas.mpl_connect("key_press_event", self.on_key)
@@ -62,5 +62,5 @@ class imscroll:
     def set_index(self, index):
         self.index = index % self.vol.shape[0]
         self.ax.images[0].set_array(self.vol[self.index])
-        self.ax.set_title(f"slice #{self.index}")
+        self.ax.set_title("slice #{self.index}".format(self=self))
         self.fig.canvas.draw()
