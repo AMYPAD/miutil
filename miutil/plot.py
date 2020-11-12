@@ -8,10 +8,11 @@ class imscroll:
     """
     Slice through volumes by scrolling.
     Hold SHIFT to scroll faster.
+    CTRL+click to select points to plot profiles between.
     """
 
     _instances = []
-    _SUPPORTED_KEYS = ["shift"]
+    _SUPPORTED_KEYS = ["control", "shift"]
 
     def __init__(self, vol, view="t", fig=None, titles=None, **kwargs):
         """
@@ -56,10 +57,13 @@ class imscroll:
             ax.imshow(i[self.index], **kwargs)
             ax.set_title(t or "slice #{}".format(self.index))
         self.vols = vol
+        self.picked = []
+        self._annotes = []
         self.key = {i: False for i in self._SUPPORTED_KEYS}
         self.fig.canvas.mpl_connect("scroll_event", self._scroll)
         self.fig.canvas.mpl_connect("key_press_event", self._on_key)
         self.fig.canvas.mpl_connect("key_release_event", self._off_key)
+        self.fig.canvas.mpl_connect("button_press_event", self._on_click)
         imscroll._instances.append(self)  # prevents gc
 
     @classmethod
@@ -67,22 +71,50 @@ class imscroll:
         cls._instances.clear()
 
     def _on_key(self, event):
-        if event.key in self._SUPPORTED_KEYS:
-            self.key[event.key] = True
+        key = {"ctrl": "control"}.get(event.key, event.key)
+        if key in self._SUPPORTED_KEYS:
+            self.key[key] = True
 
     def _off_key(self, event):
-        if event.key in self._SUPPORTED_KEYS:
-            self.key[event.key] = False
+        key = {"ctrl": "control"}.get(event.key, event.key)
+        if key in self._SUPPORTED_KEYS:
+            self.key[key] = False
 
     def _scroll(self, event):
-        self.set_index(
-            self.index
-            + (1 if event.button == "up" else -1) * (10 if self.key["shift"] else 1)
-        )
+        self.set_index(self.index + event.step * (10 if self.key["shift"] else 1))
 
     def set_index(self, index):
         self.index = index % self.index_max
         for ax, vol, t in zip(self.axs, self.vols, self.titles):
             ax.images[0].set_array(vol[self.index])
             ax.set_title(t or "slice #{}".format(self.index))
+        for ann in self._annotes:
+            ann.remove()
+        self._annotes = []
         self.fig.canvas.draw()
+
+    def _on_click(self, event):
+        if not self.key["control"]:
+            return
+        self.picked.append((event.xdata, event.ydata))
+        if len(self.picked) < 2:
+            return
+
+        import numpy as np
+        import scipy.ndimage as ndi
+
+        (x0, y0), (x1, y1) = self.picked[:2]
+        num = int(np.round(np.hypot(y1 - y0, x1 - x0))) + 1
+        x, y = np.linspace(x0, x1, num), np.linspace(y0, y1, num)
+        z = ndi.map_coordinates(
+            event.inaxes.images[0].get_array(), np.vstack((x, y)), order=1
+        )
+        self.picked = []
+        self.key["control"] = False
+
+        self._annotes.append(event.inaxes.plot([x0, x1], [y0, y1], "ro-")[0])
+        plt.figure()
+        plt.plot(x, z, "r-")
+        plt.xlabel("x")
+        plt.ylabel("Intensity")
+        plt.show()
