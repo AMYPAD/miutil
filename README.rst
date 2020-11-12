@@ -16,6 +16,7 @@ Intended for inclusion in requirements for other packages.
 The package name is ``miutil``. Options include:
 
 - nii
+- plot
 
 To install options and their dependencies,
 use the package name ``miutil[option1,option2]``.
