@@ -9,9 +9,9 @@ import re
 import nibabel as nib
 import numpy as np
 
+from . import RE_NII_GZ
 from ..fdio import create_dir
 
-RE_NII_GZ = re.compile(r"^(.+)(\.nii(?:\.gz)?)$", flags=re.I)
 RE_GZ = re.compile(r"^(.+)(\.gz)$", flags=re.I)
 log = logging.getLogger(__name__)
 
