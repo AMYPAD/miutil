@@ -13,7 +13,7 @@ class imscroll:
     instances = []
     SUPPORTED_KEYS = ["shift"]
 
-    def __init__(self, vol, view="t", fig=None, **kwargs):
+    def __init__(self, vol, view="t", fig=None, titles=None, **kwargs):
         """
         Scroll through 2D slices of 3D volume(s) using the mouse.
         Args:
@@ -28,10 +28,14 @@ class imscroll:
             if hasattr(vol, "keys"):
                 keys = list(vol.keys())
                 vol = [vol[i] for i in keys]
+                if titles is None:
+                    titles = keys
         if vol[0].ndim == 2:
             vol = [vol]
         elif vol[0].ndim != 3:
             raise IndexError("Expected vol.ndim in [3, 4] but got {}".format(vol.ndim))
+
+        self.titles = titles or [None] * len(vol)
 
         view = view.lower()
         if view in ["c", "coronal", "y"]:
@@ -46,9 +50,9 @@ class imscroll:
         else:
             self.fig, axs = plt.subplots(1, len(vol))
         self.axs = [axs] if len(vol) == 1 else list(axs.flat)
-        for ax, i in zip(self.axs, vol):
+        for ax, i, t in zip(self.axs, vol, self.titles):
             ax.imshow(i[self.index], **kwargs)
-            ax.set_title("slice #{}".format(self.index))
+            ax.set_title(t or "slice #{}".format(self.index))
         self.vols = vol
         self.key = {i: False for i in self.SUPPORTED_KEYS}
         self.fig.canvas.mpl_connect("scroll_event", self.scroll)
@@ -76,7 +80,7 @@ class imscroll:
 
     def set_index(self, index):
         self.index = index % self.index_max
-        for ax, vol in zip(self.axs, self.vols):
+        for ax, vol, t in zip(self.axs, self.vols, self.titles):
             ax.images[0].set_array(vol[self.index])
-            ax.set_title("slice #{}".format(self.index))
+            ax.set_title(t or "slice #{}".format(self.index))
         self.fig.canvas.draw()
