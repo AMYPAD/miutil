@@ -17,19 +17,20 @@ class imscroll:
         """
         Scroll through 2D slices of 3D volume(s) using the mouse.
         Args:
-            vol (str or numpy.ndarray or list): path to file or
-                a (list of) numpy array(s).
+            vol (str or numpy.ndarray or list or dict): path to file or
+                a (list/dict of) array(s).
             view (str): z, t, transverse/y, c, coronal/x, s, sagittal.
             fig (matplotlib.pyplot.Figure): will be created if unspecified.
+            titles (list): list of strings (overrides `vol.keys()`).
             **kwargs: passed to `matplotlib.pyplot.imshow()`.
         """
         if isinstance(vol, str) and path.exists(vol):
             vol = imread(vol)
-            if hasattr(vol, "keys"):
-                keys = list(vol.keys())
-                vol = [vol[i] for i in keys]
-                if titles is None:
-                    titles = keys
+        if hasattr(vol, "keys"):
+            keys = list(vol.keys())
+            vol = [vol[i] for i in keys]
+            if titles is None:
+                titles = keys
         if vol[0].ndim == 2:
             vol = [vol]
         elif vol[0].ndim != 3:
