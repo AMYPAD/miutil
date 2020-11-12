@@ -15,30 +15,41 @@ class imscroll:
 
     def __init__(self, vol, view="t", fig=None, **kwargs):
         """
-        Scroll through 2D slices of a 3D volume using the mouse.
+        Scroll through 2D slices of 3D volume(s) using the mouse.
         Args:
-            vol (str or numpy.ndarray): path to file or a numpy array.
+            vol (str or numpy.ndarray or list): path to file or
+                a (list of) numpy array(s).
             view (str): z, t, transverse/y, c, coronal/x, s, sagittal.
             fig (matplotlib.pyplot.Figure): will be created if unspecified.
             **kwargs: passed to `matplotlib.pyplot.imshow()`.
         """
         if isinstance(vol, str) and path.exists(vol):
             vol = imread(vol)
+            if hasattr(vol, "keys"):
+                keys = list(vol.keys())
+                vol = [vol[i] for i in keys]
+        if vol[0].ndim == 2:
+            vol = [vol]
+        elif vol[0].ndim != 3:
+            raise IndexError("Expected vol.ndim in [3, 4] but got {}".format(vol.ndim))
 
         view = view.lower()
         if view in ["c", "coronal", "y"]:
-            vol = vol.transpose(1, 0, 2)
+            vol = [i.transpose(1, 0, 2) for i in vol]
         elif view in ["s", "saggital", "x"]:
-            vol = vol.transpose(2, 0, 1)
+            vol = [i.transpose(2, 0, 1) for i in vol]
 
-        self.index = vol.shape[0] // 2
+        self.index_max = min(map(len, vol))
+        self.index = self.index_max // 2
         if fig is not None:
-            self.fig, self.ax = fig, fig.subplots()
+            self.fig, axs = fig, fig.subplots(1, len(vol))
         else:
-            self.fig, self.ax = plt.subplots()
-        self.ax.imshow(vol[self.index], **kwargs)
-        self.ax.set_title("slice #{self.index}".format(self=self))
-        self.vol = vol
+            self.fig, axs = plt.subplots(1, len(vol))
+        self.axs = [axs] if len(vol) == 1 else list(axs.flat)
+        for ax, i in zip(self.axs, vol):
+            ax.imshow(i[self.index], **kwargs)
+            ax.set_title("slice #{}".format(self.index))
+        self.vols = vol
         self.key = {i: False for i in self.SUPPORTED_KEYS}
         self.fig.canvas.mpl_connect("scroll_event", self.scroll)
         self.fig.canvas.mpl_connect("key_press_event", self.on_key)
@@ -64,7 +75,8 @@ class imscroll:
         )
 
     def set_index(self, index):
-        self.index = index % self.vol.shape[0]
-        self.ax.images[0].set_array(self.vol[self.index])
-        self.ax.set_title("slice #{self.index}".format(self=self))
+        self.index = index % self.index_max
+        for ax, vol in zip(self.axs, self.vols):
+            ax.images[0].set_array(vol[self.index])
+            ax.set_title("slice #{}".format(self.index))
         self.fig.canvas.draw()
