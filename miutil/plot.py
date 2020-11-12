@@ -1,6 +1,7 @@
 from os import path
 import matplotlib.pyplot as plt
-import numpy as np
+
+from .imio import imread
 
 
 class imscroll:
@@ -21,13 +22,7 @@ class imscroll:
             **kwargs: passed to `matplotlib.pyplot.imshow()`.
         """
         if isinstance(vol, str) and path.exists(vol):
-            from .imio import getnii
-
-            im = getnii(vol)
-        elif isinstance(vol, np.ndarray):
-            im = vol.copy()
-        else:
-            raise ValueError("unrecognised vol")
+            im = imread(vol)
 
         view = view.lower()
         if view in ["c", "coronal", "y"]:
