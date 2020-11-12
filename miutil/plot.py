@@ -10,8 +10,8 @@ class imscroll:
     Hold SHIFT to scroll faster.
     """
 
-    instances = []
-    SUPPORTED_KEYS = ["shift"]
+    _instances = []
+    _SUPPORTED_KEYS = ["shift"]
 
     def __init__(self, vol, view="t", fig=None, titles=None, **kwargs):
         """
@@ -55,25 +55,25 @@ class imscroll:
             ax.imshow(i[self.index], **kwargs)
             ax.set_title(t or "slice #{}".format(self.index))
         self.vols = vol
-        self.key = {i: False for i in self.SUPPORTED_KEYS}
-        self.fig.canvas.mpl_connect("scroll_event", self.scroll)
-        self.fig.canvas.mpl_connect("key_press_event", self.on_key)
-        self.fig.canvas.mpl_connect("key_release_event", self.off_key)
-        imscroll.instances.append(self)  # prevents gc
+        self.key = {i: False for i in self._SUPPORTED_KEYS}
+        self.fig.canvas.mpl_connect("scroll_event", self._scroll)
+        self.fig.canvas.mpl_connect("key_press_event", self._on_key)
+        self.fig.canvas.mpl_connect("key_release_event", self._off_key)
+        imscroll._instances.append(self)  # prevents gc
 
     @classmethod
     def clear(cls, self):
-        cls.instances.clear()
+        cls._instances.clear()
 
-    def on_key(self, event):
-        if event.key in self.SUPPORTED_KEYS:
+    def _on_key(self, event):
+        if event.key in self._SUPPORTED_KEYS:
             self.key[event.key] = True
 
-    def off_key(self, event):
-        if event.key in self.SUPPORTED_KEYS:
+    def _off_key(self, event):
+        if event.key in self._SUPPORTED_KEYS:
             self.key[event.key] = False
 
-    def scroll(self, event):
+    def _scroll(self, event):
         self.set_index(
             self.index
             + (1 if event.button == "up" else -1) * (10 if self.key["shift"] else 1)
