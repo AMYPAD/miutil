@@ -31,10 +31,11 @@ class imscroll:
             vol = [vol[i] for i in keys]
             if titles is None:
                 titles = keys
-        if vol[0].ndim == 2:
+        ndim = vol[0].ndim + 1
+        if ndim == 3:
             vol = [vol]
-        elif vol[0].ndim != 3:
-            raise IndexError("Expected vol.ndim in [3, 4] but got {}".format(vol.ndim))
+        elif ndim != 4:
+            raise IndexError("Expected vol.ndim in [3, 4] but got {}".format(ndim))
 
         self.titles = titles or [None] * len(vol)
 
