@@ -13,12 +13,13 @@ class imscroll:
     instances = []
     SUPPORTED_KEYS = ["shift"]
 
-    def __init__(self, vol, view="t", **kwargs):
+    def __init__(self, vol, view="t", fig=None, **kwargs):
         """
         Scroll through 2D slices of a 3D volume using the mouse.
         Args:
             vol (str or numpy.ndarray): path to file or a numpy array.
             view (str): z, t, transverse/y, c, coronal/x, s, sagittal.
+            fig (matplotlib.pyplot.Figure): will be created if unspecified.
             **kwargs: passed to `matplotlib.pyplot.imshow()`.
         """
         if isinstance(vol, str) and path.exists(vol):
@@ -31,7 +32,10 @@ class imscroll:
             vol = vol.transpose(2, 0, 1)
 
         self.index = vol.shape[0] // 2
-        self.fig, self.ax = plt.subplots()
+        if fig is not None:
+            self.fig, self.ax = fig, fig.subplots()
+        else:
+            self.fig, self.ax = plt.subplots()
         self.ax.imshow(vol[self.index], **kwargs)
         self.ax.set_title("slice #{self.index}".format(self=self))
         self.vol = vol
