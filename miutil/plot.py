@@ -14,7 +14,7 @@ class imscroll:
     _instances = []
     _SUPPORTED_KEYS = ["control", "shift"]
 
-    def __init__(self, vol, view="t", fig=None, titles=None, **kwargs):
+    def __init__(self, vol, view="t", fig=None, titles=None, order=0, **kwargs):
         """
         Scroll through 2D slices of 3D volume(s) using the mouse.
         Args:
@@ -23,6 +23,8 @@ class imscroll:
             view (str): z, t, transverse/y, c, coronal/x, s, sagittal.
             fig (matplotlib.pyplot.Figure): will be created if unspecified.
             titles (list): list of strings (overrides `vol.keys()`).
+            order (int): spline interpolation order for line profiles.
+                0: nearest, 1: bilinear, >2: probably avoid.
             **kwargs: passed to `matplotlib.pyplot.imshow()`.
         """
         if isinstance(vol, str) and path.exists(vol):
@@ -38,14 +40,14 @@ class imscroll:
         elif ndim != 4:
             raise IndexError("Expected vol.ndim in [3, 4] but got {}".format(ndim))
 
-        self.titles = titles or [None] * len(vol)
-
         view = view.lower()
         if view in ["c", "coronal", "y"]:
             vol = [i.transpose(1, 0, 2) for i in vol]
         elif view in ["s", "saggital", "x"]:
             vol = [i.transpose(2, 0, 1) for i in vol]
 
+        # volumes
+        self.titles = titles or [None] * len(vol)
         self.index_max = min(map(len, vol))
         self.index = self.index_max // 2
         if fig is not None:
@@ -57,8 +59,11 @@ class imscroll:
             ax.imshow(i[self.index], **kwargs)
             ax.set_title(t or "slice #{}".format(self.index))
         self.vols = vol
+        # line profiles
+        self.order = order
         self.picked = []
         self._annotes = []
+        # event callbacks
         self.key = {i: False for i in self._SUPPORTED_KEYS}
         self.fig.canvas.mpl_connect("scroll_event", self._scroll)
         self.fig.canvas.mpl_connect("key_press_event", self._on_key)
@@ -94,7 +99,7 @@ class imscroll:
         self.fig.canvas.draw()
 
     def _on_click(self, event):
-        if not self.key["control"]:
+        if not self.key["control"] or None in (event.xdata, event.ydata):
             return
         self.picked.append((event.xdata, event.ydata))
         if len(self.picked) < 2:
@@ -104,15 +109,18 @@ class imscroll:
         import scipy.ndimage as ndi
 
         (x0, y0), (x1, y1) = self.picked[:2]
-        num = int(np.round(np.hypot(y1 - y0, x1 - x0))) + 1
+        num = int(np.round(np.hypot(y1 - y0, x1 - x0) * 4)) + 1
         x, y = np.linspace(x0, x1, num), np.linspace(y0, y1, num)
         z = ndi.map_coordinates(
-            event.inaxes.images[0].get_array(), np.vstack((x, y)), order=1
+            event.inaxes.images[0].get_array(),
+            np.vstack((x, y)),
+            order=self.order,
+            mode="nearest",
         )
         self.picked = []
         self.key["control"] = False
 
-        self._annotes.append(event.inaxes.plot([x0, x1], [y0, y1], "ro-")[0])
+        self._annotes.append(event.inaxes.plot([x0, x1], [y0, y1], "r-")[0])
         plt.figure()
         plt.plot(x, z, "r-")
         plt.xlabel("x")
