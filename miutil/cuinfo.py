@@ -30,11 +30,15 @@ def get_nvcc_flags(dev_id=0):
     return "-gencode=arch=compute_{0:d}{1:d},code=compute_{0:d}{1:d}".format(*get_cc())
 
 
-if __name__ == "__main__":
+def main(*args, **kwargs):
     from argopt import argopt
 
-    args = argopt(__doc__).parse_args()
+    args = argopt(__doc__).parse_args(*args, **kwargs)
     if args.nvcc_flags:
         print(get_nvcc_flags())
     else:
         print("Compute capability: {:d}.{:d}".format(*get_cc()))
+
+
+if __name__ == "__main__":
+    main()
