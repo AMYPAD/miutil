@@ -13,13 +13,24 @@ Install
 -------
 
 Intended for inclusion in requirements for other packages.
-The package name is ``miutil``. Options include:
+The package name is ``miutil``. Extra install options include:
 
 - nii
+
+  - provides `miutil.imio.nii <https://github.com/AMYPAD/miutil/blob/master/miutil/imio/nii.py>`_
+
 - plot
+
+  - provides `miutil.plot <https://github.com/AMYPAD/miutil/blob/master/miutil/plot.py>`_
+
+    - includes a useful 3D multi-volume ``imscroll`` function which depends only on ``matplotlib``
+
 - cuda
 
-To install options and their dependencies,
+  - provides `miutil.cuinfo <https://github.com/AMYPAD/miutil/blob/master/miutil/cuinfo.py>`_
+
+
+To install extras and their dependencies,
 use the package name ``miutil[option1,option2]``.
 
 
