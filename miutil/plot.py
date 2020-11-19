@@ -1,4 +1,5 @@
 from os import path
+from textwrap import dedent
 import matplotlib.pyplot as plt
 
 from .imio import imread
@@ -37,8 +38,20 @@ class imscroll:
         ndim = vol[0].ndim + 1
         if ndim == 3:
             vol = [vol]
-        elif ndim != 4:
-            raise IndexError("Expected vol.ndim in [3, 4] but got {}".format(ndim))
+        elif ndim not in [4, 5]:
+            raise IndexError(
+                dedent(
+                    """\
+                Expected vol.ndim in
+                    3: single volume
+                    4: multiple volumes
+                    5: multiple RGB volumes
+                but got {}
+                """.format(
+                        ndim
+                    )
+                )
+            )
 
         view = view.lower()
         if view in ["c", "coronal", "y"]:
