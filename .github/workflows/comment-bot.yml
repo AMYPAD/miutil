@@ -4,6 +4,7 @@ on:
     types: [created]
   pull_request_review_comment:
     types: [created]
+
 jobs:
   tag:  # /tag <tagname> <commit>
     if: startsWith(github.event.comment.body, '/tag ')
@@ -32,10 +33,13 @@ jobs:
             comment_id: context.payload.comment.id, content: "eyes"})
     - name: Tag Commit
       run: |
-        git tag $(echo "$BODY" | awk '{print $2" "$3}')
-        git push --tags
+        git clone https://${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY} repo
+        git -C repo tag $(echo "$BODY" | awk '{print $2" "$3}')
+        git -C repo push --tags
+        rm -rf repo
       env:
         BODY: ${{ github.event.comment.body }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
     - name: React Success
       uses: actions/github-script@v2
       with:
