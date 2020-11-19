@@ -41,12 +41,12 @@ jobs:
     - run: python -m tests --cov-report=term-missing --cov-report=xml
   matlab:
     runs-on: [self-hosted, matlab]
-    name: Test matlab
+    name: Test matlab & cuda
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    - run: pip install -U .[dev]
+    - run: pip install -U .[dev,cuda]
     - run: python -m tests --cov-report=term-missing --cov-report=xml
   deploy:
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
