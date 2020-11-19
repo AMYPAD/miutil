@@ -3,14 +3,14 @@ Usage:
   miutil.cuinfo [options]
 
 Options:
-  -c, --dev-count      : print number of devices (ignores `-d`)
-  -f, --nvcc-flags     : print out flags for use nvcc compilation
-  -d ID, --dev-id ID   : select device ID [default: None:int] for all
+  -n, --num-devices   : print number of devices (ignores `-d`)
+  -f, --nvcc-flags    : print out flags for use nvcc compilation
+  -d ID, --dev-id ID  : select device ID [default: None:int] for all
 """
 from argopt import argopt
 import pynvml
 
-__all__ = ["get_device_count", "get_cc", "get_mem", "get_name", "get_nvcc_flags"]
+__all__ = ["num_devices", "compute_capability", "memory", "name", "nvcc_flags"]
 
 
 def nvmlDeviceGetCudaComputeCapability(handle):
@@ -22,7 +22,8 @@ def nvmlDeviceGetCudaComputeCapability(handle):
     return [major.value, minor.value]
 
 
-def get_device_count():
+def num_devices():
+    """returns total number of devices"""
     pynvml.nvmlInit()
     return pynvml.nvmlDeviceGetCount()
 
@@ -30,51 +31,51 @@ def get_device_count():
 def get_handle(dev_id=-1):
     """allows negative indexing"""
     pynvml.nvmlInit()
-    dev_id = get_device_count() + dev_id if dev_id < 0 else dev_id
+    dev_id = num_devices() + dev_id if dev_id < 0 else dev_id
     try:
         return pynvml.nvmlDeviceGetHandleByIndex(dev_id)
     except pynvml.NVMLError:
         raise IndexError("invalid dev_id")
 
 
-def get_cc(dev_id=-1):
+def compute_capability(dev_id=-1):
     """returns compute capability (major, minor)"""
     return tuple(nvmlDeviceGetCudaComputeCapability(get_handle(dev_id)))
 
 
-def get_mem(dev_id=-1):
+def memory(dev_id=-1):
     """returns memory (total, free, used)"""
     mem = pynvml.nvmlDeviceGetMemoryInfo(get_handle(dev_id))
     return (mem.total, mem.free, mem.used)
 
 
-def get_name(dev_id=-1):
+def name(dev_id=-1):
     """returns device name"""
     return pynvml.nvmlDeviceGetName(get_handle(dev_id)).decode("U8")
 
 
-def get_nvcc_flags(dev_id=-1):
+def nvcc_flags(dev_id=-1):
     return "-gencode=arch=compute_{0:d}{1:d},code=compute_{0:d}{1:d}".format(
-        *get_cc(dev_id)
+        *compute_capability(dev_id)
     )
 
 
 def main(*args, **kwargs):
     args = argopt(__doc__).parse_args(*args, **kwargs)
     noargs = True
-    devices = range(get_device_count()) if args.dev_id is None else [args.dev_id]
+    devices = range(num_devices()) if args.dev_id is None else [args.dev_id]
 
-    if args.dev_count:
-        print(get_device_count())
+    if args.num_devices:
+        print(num_devices())
         noargs = False
     if args.nvcc_flags:
-        print(" ".join(sorted(set(map(get_nvcc_flags, devices)))[::-1]))
+        print(" ".join(sorted(set(map(nvcc_flags, devices)))[::-1]))
         noargs = False
     if noargs:
         for dev_id in devices:
             print(
                 "Device {:2d}:compute capability:{:d}.{:d}".format(
-                    dev_id, *get_cc(dev_id)
+                    dev_id, *compute_capability(dev_id)
                 )
             )
 

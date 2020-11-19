@@ -1,24 +1,24 @@
 from pytest import importorskip, raises
 
 importorskip("pynvml")
-from miutil.cuinfo import get_cc, get_device_count  # NOQA: E402
+from miutil.cuinfo import compute_capability, num_devices  # NOQA: E402
 
 
-def test_get_cc():
-    cc = get_cc()
+def test_compute_capability():
+    cc = compute_capability()
     assert len(cc) == 2, cc
     assert all(isinstance(i, int) for i in cc), cc
 
 
-def test_get_device_count():
-    devices = get_device_count()
+def test_num_devices():
+    devices = num_devices()
     assert isinstance(devices, int)
 
 
 def test_cuinfo_cli(capsys):
     from miutil.cuinfo import main
 
-    main(["--dev-count"])
+    main(["--num-devices"])
     out, _ = capsys.readouterr()
     devices = int(out)
     assert devices >= 0
