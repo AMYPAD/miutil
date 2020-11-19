@@ -102,7 +102,7 @@ class imscroll:
         self.set_index(self.index + event.step * (10 if self.key["shift"] else 1))
 
     def set_index(self, index):
-        self.index = index % self.index_max
+        self.index = int(index) % self.index_max
         for ax, vol, t in zip(self.axs, self.vols, self.titles):
             ax.images[0].set_array(vol[self.index])
             ax.set_title(t or "slice #{}".format(self.index))
