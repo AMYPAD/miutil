@@ -10,7 +10,7 @@ import nibabel as nib
 import numpy as np
 
 from . import RE_NII_GZ
-from ..fdio import create_dir
+from ..fdio import create_dir, hasext
 
 RE_GZ = re.compile(r"^(.+)(\.gz)$", flags=re.I)
 log = logging.getLogger(__name__)
@@ -25,11 +25,11 @@ def file_parts(fname, regex=RE_NII_GZ):
 
 def nii_ugzip(imfile, outpath=""):
     """Uncompress *.gz file"""
-    assert imfile[-3:].lower() == ".gz"
+    assert hasext(imfile, "gz")
+    fout, ext = file_parts(imfile, RE_GZ)
     with gzip.open(imfile, "rb") as f:
         s = f.read()
     # write the uncompressed data
-    fout = imfile[:-3]
     if outpath:
         fout = os.path.join(outpath, os.path.basename(fout))
     with open(fout, "wb") as f:
@@ -141,11 +141,11 @@ def array2nii(im, A, fnii, descrip="", trnsp=None, flip=None, storage_as=None):
         'descrip':  the description given to the file
         'trsnp':    transpose/permute the dimensions.
                     In NIfTI it has to be in this order: [x,y,z,t,...])
-        'flip':     flip tupple for flipping the direction of x,y,z axes.
+        'flip':     flip tuple for flipping the direction of x,y,z axes.
                     (1: no flip, -1: flip)
         'storage_as': uses the flip and displacement as given by the following
                     NifTI dictionary, obtained using
-                    nimpa.getnii(filepath, output='all').
+                    `getnii(filepath, output='all')`.
     """
     trnsp = trnsp or ()
     flip = flip or ()

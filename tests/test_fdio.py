@@ -4,9 +4,10 @@ from miutil import fdio
 
 
 def test_create_dir(tmp_path):
-    assert not path.exists(tmp_path / "create_dir")
-    fdio.create_dir(tmp_path / "create_dir")
-    assert path.exists(tmp_path / "create_dir")
+    tmpdir = str(tmp_path / "create_dir")
+    assert not path.exists(tmpdir)
+    fdio.create_dir(tmpdir)
+    assert path.exists(tmpdir)
 
 
 def test_hasext():
@@ -26,7 +27,7 @@ def test_hasext():
         assert not fdio.hasext(fname, ext)
 
 
-def test_tmpdir(tmp_path):
+def test_tmpdir():
     with fdio.tmpdir() as tmpdir:
         assert path.exists(tmpdir)
         res = tmpdir
