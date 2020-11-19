@@ -3,7 +3,7 @@ miutil
 
 Medical imaging utilities.
 
-|Versions| |Py-Versions| |Tests| |LICENCE|
+|Versions| |Py-Versions| |Tests| |Coverage| |LICENCE|
 
 Basic functionality needed for `AMYPAD <https://github.com/AMYPAD/AMYPAD>`_
 and `NiftyPET <https://github.com/NiftyPET/NiftyPET>`_.
@@ -36,6 +36,8 @@ use the package name ``miutil[option1,option2]``.
 
 .. |Tests| image:: https://img.shields.io/github/workflow/status/AMYPAD/miutil/Test
    :target: https://github.com/AMYPAD/miutil/actions
+.. |Coverage| image:: https://codecov.io/gh/AMYPAD/miutil/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/AMYPAD/miutil
 .. |Versions| image:: https://img.shields.io/pypi/v/miutil.svg
    :target: https://github.com/AMYPAD/miutil/releases
 .. |Py-Versions| image:: https://img.shields.io/pypi/pyversions/miutil.svg?logo=python&logoColor=white
