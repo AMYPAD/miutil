@@ -74,11 +74,11 @@ def main(*args, **kwargs):
     if noargs:
         for dev_id in devices:
             print(
-                "Device {:2d}:compute capability:{:d}.{:d}".format(
-                    dev_id, *compute_capability(dev_id)
+                "Device {:2d}:{}:compute capability:{:d}.{:d}".format(
+                    dev_id, name(dev_id), *compute_capability(dev_id)
                 )
             )
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()
