@@ -124,18 +124,34 @@ class imscroll:
         (x0, y0), (x1, y1) = self.picked[:2]
         num = int(np.round(np.hypot(y1 - y0, x1 - x0) * 4)) + 1
         x, y = np.linspace(x0, x1, num), np.linspace(y0, y1, num)
-        z = ndi.map_coordinates(
-            event.inaxes.images[0].get_array(),
-            np.vstack((x, y)),
-            order=self.order,
-            mode="nearest",
-        )
+        arr = event.inaxes.images[0].get_array()
+        if arr.ndim == 3:
+            z = [
+                ndi.map_coordinates(
+                    arr,
+                    np.vstack((x, y, np.ones_like(x) * i)),
+                    order=self.order,
+                    mode="nearest",
+                )
+                for i in range(event.inaxes.images[0].get_array().shape[-1])
+            ]
+        else:
+            z = ndi.map_coordinates(
+                arr,
+                np.vstack((x, y)),
+                order=self.order,
+                mode="nearest",
+            )
         self.picked = []
         self.key["control"] = False
 
         self._annotes.append(event.inaxes.plot([x0, x1], [y0, y1], "r-")[0])
         plt.figure()
-        plt.plot(x, z, "r-")
+        if arr.ndim == 3:
+            for channel, colour in zip(z, "rgbcmyk"):
+                plt.plot(x, channel, colour + "-")
+        else:
+            plt.plot(x, z, "r-")
         plt.xlabel("x")
         plt.ylabel("Intensity")
         plt.show()
