@@ -10,7 +10,7 @@ Options:
 from argopt import argopt
 import pynvml
 
-__all__ = ["get_cc", "get_nvcc_flags", "get_device_count"]
+__all__ = ["get_device_count", "get_cc", "get_mem", "get_name", "get_nvcc_flags"]
 
 
 def nvmlDeviceGetCudaComputeCapability(handle):
@@ -27,16 +27,30 @@ def get_device_count():
     return pynvml.nvmlDeviceGetCount()
 
 
-def get_cc(dev_id=-1):
-    """returns get compute capability [major, minor]"""
+def get_handle(dev_id=-1):
+    """allows negative indexing"""
     pynvml.nvmlInit()
-    if dev_id < 0:
-        dev_id = get_device_count() + dev_id
+    dev_id = get_device_count() + dev_id if dev_id < 0 else dev_id
     try:
-        handle = pynvml.nvmlDeviceGetHandleByIndex(dev_id)
+        return pynvml.nvmlDeviceGetHandleByIndex(dev_id)
     except pynvml.NVMLError:
         raise IndexError("invalid dev_id")
-    return tuple(nvmlDeviceGetCudaComputeCapability(handle))
+
+
+def get_cc(dev_id=-1):
+    """returns compute capability (major, minor)"""
+    return tuple(nvmlDeviceGetCudaComputeCapability(get_handle(dev_id)))
+
+
+def get_mem(dev_id=-1):
+    """returns memory (total, free, used)"""
+    mem = pynvml.nvmlDeviceGetMemoryInfo(get_handle(dev_id))
+    return (mem.total, mem.free, mem.used)
+
+
+def get_name(dev_id=-1):
+    """returns device name"""
+    return pynvml.nvmlDeviceGetName(get_handle(dev_id)).decode("U8")
 
 
 def get_nvcc_flags(dev_id=-1):
