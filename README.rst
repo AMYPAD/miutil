@@ -3,7 +3,7 @@ miutil
 
 Medical imaging utilities.
 
-|Versions| |Py-Versions| |Tests| |Coverage| |LICENCE|
+|Version| |Py-Versions| |Tests| |Coverage| |DOI| |LICENCE|
 
 Basic functionality needed for `AMYPAD <https://github.com/AMYPAD/AMYPAD>`_
 and `NiftyPET <https://github.com/NiftyPET/NiftyPET>`_.
@@ -34,13 +34,15 @@ To install extras and their dependencies,
 use the package name ``miutil[option1,option2]``.
 
 
-.. |Tests| image:: https://img.shields.io/github/workflow/status/AMYPAD/miutil/Test
+.. |Tests| image:: https://img.shields.io/github/workflow/status/AMYPAD/miutil/Test?logo=GitHub
    :target: https://github.com/AMYPAD/miutil/actions
 .. |Coverage| image:: https://codecov.io/gh/AMYPAD/miutil/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/AMYPAD/miutil
-.. |Versions| image:: https://img.shields.io/pypi/v/miutil.svg
+.. |Version| image:: https://img.shields.io/pypi/v/miutil.svg?logo=python&logoColor=white
    :target: https://github.com/AMYPAD/miutil/releases
 .. |Py-Versions| image:: https://img.shields.io/pypi/pyversions/miutil.svg?logo=python&logoColor=white
    :target: https://pypi.org/project/miutil
+.. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4281542.svg
+   :target: https://doi.org/10.5281/zenodo.4281542
 .. |LICENCE| image:: https://img.shields.io/pypi/l/miutil.svg
    :target: https://raw.githubusercontent.com/AMYPAD/miutil/master/LICENCE.md
