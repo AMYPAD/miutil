@@ -26,12 +26,11 @@ def file_parts(fname, regex=RE_NII_GZ):
 def nii_ugzip(imfile, outpath=""):
     """Uncompress *.gz file"""
     assert hasext(imfile, "gz")
-    fout, ext = file_parts(imfile, RE_GZ)
+    dout, fout, ext = file_parts(imfile, RE_GZ)
     with gzip.open(imfile, "rb") as f:
         s = f.read()
     # write the uncompressed data
-    if outpath:
-        fout = os.path.join(outpath, os.path.basename(fout))
+    fout = os.path.join(outpath or dout, fout)
     with open(fout, "wb") as f:
         f.write(s)
     return fout
