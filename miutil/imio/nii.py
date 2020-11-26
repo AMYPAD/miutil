@@ -1,5 +1,4 @@
 """NIfTI I/O"""
-from six import string_types
 import gzip
 import logging
 import numbers
@@ -8,9 +7,10 @@ import re
 
 import nibabel as nib
 import numpy as np
+from six import string_types
 
-from . import RE_NII_GZ
 from ..fdio import create_dir, hasext
+from . import RE_NII_GZ
 
 RE_GZ = re.compile(r"^(.+)(\.gz)$", flags=re.I)
 log = logging.getLogger(__name__)

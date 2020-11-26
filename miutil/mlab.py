@@ -1,11 +1,11 @@
-from ast import literal_eval
-from functools import lru_cache
-from os import getenv, path
-from subprocess import CalledProcessError, STDOUT, check_output
-from textwrap import dedent
 import logging
 import re
 import sys
+from ast import literal_eval
+from functools import lru_cache
+from os import getenv, path
+from subprocess import STDOUT, CalledProcessError, check_output
+from textwrap import dedent
 
 from .fdio import tmpdir
 

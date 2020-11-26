@@ -7,8 +7,8 @@ Options:
   -f, --nvcc-flags    : print out flags for use nvcc compilation
   -d ID, --dev-id ID  : select device ID [default: None:int] for all
 """
-from argopt import argopt
 import pynvml
+from argopt import argopt
 
 __all__ = ["num_devices", "compute_capability", "memory", "name", "nvcc_flags"]
 

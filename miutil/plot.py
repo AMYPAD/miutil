@@ -1,5 +1,6 @@
 from os import path
 from textwrap import dedent
+
 import matplotlib.pyplot as plt
 
 from .imio import imread
@@ -137,10 +138,7 @@ class imscroll:
             ]
         else:
             z = ndi.map_coordinates(
-                arr,
-                np.vstack((x, y)),
-                order=self.order,
-                mode="nearest",
+                arr, np.vstack((x, y)), order=self.order, mode="nearest"
             )
         self.picked = []
         self.key["control"] = False
