@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """CUDA helpers
 Usage:
   miutil.cuinfo [options]
