@@ -19,6 +19,10 @@ The package name is ``miutil``. Extra install options include:
 
   - provides `miutil.cuinfo <https://github.com/AMYPAD/miutil/blob/master/miutil/cuinfo.py>`_
 
+- mbeautify
+
+  - provides `miutil.mlab.beautify <https://github.com/AMYPAD/miutil/blob/master/miutil/mlab/beautify.py>`_
+
 - nii
 
   - provides `miutil.imio.nii <https://github.com/AMYPAD/miutil/blob/master/miutil/imio/nii.py>`_
