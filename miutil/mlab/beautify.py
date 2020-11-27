@@ -40,7 +40,7 @@ def ensure_mbeautifier(*args, **kwargs):
 
 def main(*args, **kwargs):
     args = argopt(__doc__).parse_args(*args, **kwargs)
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     eng = ensure_mbeautifier()
     formatter = eng.MBeautify.formatFileNoEditor
 
