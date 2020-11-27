@@ -3,7 +3,7 @@
   description: '`mbeautify` is a command-line utility for enforcing style consistency across Matlab projects.'
   entry: mbeautify
   language: python
-  additional_dependencies: [argopt, requests, tqdm]
+  additional_dependencies: ['.[mbeautify]']
   types: [text]
   files: \.(m)$
   require_serial: true
