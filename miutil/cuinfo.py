@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """CUDA helpers
 Usage:
-  miutil.cuinfo [options]
+  cuinfo [options]
 
 Options:
   -n, --num-devices   : print number of devices (ignores `-d`)
