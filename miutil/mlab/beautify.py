@@ -17,7 +17,7 @@ from ..web import get_file
 from . import get_engine
 
 log = logging.getLogger(__name__)
-MBEAUTIFIER_REV = "aad307c62532cd7c852aab9bac44fd6443b90bef"
+MBEAUTIFIER_REV = "73bc3da7df39a60aab859a2cb86dd82b4d284312"
 
 
 @lru_cache()
@@ -25,8 +25,8 @@ MBEAUTIFIER_REV = "aad307c62532cd7c852aab9bac44fd6443b90bef"
 def ensure_mbeautifier(*args, **kwargs):
     eng = get_engine(*args, **kwargs)
     fn = get_file(
-        "MBeautifier-aad307c.zip",
-        "https://github.com/davidvarga/MBeautifier/archive/%s.zip" % MBEAUTIFIER_REV,
+        "MBeautifier-%s.zip" % MBEAUTIFIER_REV[:7],
+        "https://github.com/AMYPAD/MBeautifier/archive/%s.zip" % MBEAUTIFIER_REV,
     )
     outpath = path.join(path.dirname(fn), "MBeautifier-%s" % MBEAUTIFIER_REV)
     if not path.exists(outpath):
