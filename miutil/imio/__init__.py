@@ -1,16 +1,18 @@
 import re
 
+from ..fdio import fspath
+
 RE_NII_GZ = re.compile(r"^(.+)(\.nii(?:\.gz)?)$", flags=re.I)
 RE_NPYZ = re.compile(r"^(.+)(\.np[yz])$", flags=re.I)
 
 
 def imread(fname, *args, **kwargs):
     """Read any supported filename"""
-    if RE_NII_GZ.search(fname):
+    if RE_NII_GZ.search(fspath(fname)):
         from .nii import getnii
 
         return getnii(fname, *args, **kwargs)
-    elif RE_NPYZ.search(fname):
+    elif RE_NPYZ.search(fspath(fname)):
         import numpy as np
 
         res = np.load(fname, *args, **kwargs)

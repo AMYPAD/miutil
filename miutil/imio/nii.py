@@ -9,7 +9,7 @@ import nibabel as nib
 import numpy as np
 from six import string_types
 
-from ..fdio import create_dir, hasext
+from ..fdio import create_dir, fspath, hasext
 from . import RE_NII_GZ
 
 RE_GZ = re.compile(r"^(.+)(\.gz)$", flags=re.I)
@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 
 def file_parts(fname, regex=RE_NII_GZ):
     """/path/file.nii.gz -> /path, file, .nii.gz"""
+    fname = fspath(fname)
     base = os.path.basename(fname)
     root, ext = regex.search(base).groups()
     return os.path.dirname(fname), root, ext
@@ -27,10 +28,10 @@ def nii_ugzip(imfile, outpath=""):
     """Uncompress *.gz file"""
     assert hasext(imfile, "gz")
     dout, fout, ext = file_parts(imfile, RE_GZ)
-    with gzip.open(imfile, "rb") as f:
+    with gzip.open(fspath(imfile), "rb") as f:
         s = f.read()
     # write the uncompressed data
-    fout = os.path.join(outpath or dout, fout)
+    fout = os.path.join(fspath(outpath) or dout, fout)
     with open(fout, "wb") as f:
         f.write(s)
     return fout
@@ -38,12 +39,13 @@ def nii_ugzip(imfile, outpath=""):
 
 def nii_gzip(imfile, outpath=""):
     """Compress *.gz file"""
+    imfile = fspath(imfile)
     with open(imfile, "rb") as f:
         d = f.read()
     # write the compressed data
     fout = imfile + ".gz"
     if outpath:
-        fout = os.path.join(outpath, os.path.basename(fout))
+        fout = os.path.join(fspath(outpath), os.path.basename(fout))
     with gzip.open(fout, "wb") as f:
         f.write(d)
     return fout
@@ -63,7 +65,7 @@ def getnii(fim, nan_replace=None, output="image"):
         'affine': outputs just the affine matrix
         'all': outputs all as a dictionary
     """
-    nim = nib.load(fim)
+    nim = nib.load(fspath(fim))
 
     dim = nim.header.get("dim")
     dimno = dim[0]
@@ -192,7 +194,7 @@ def array2nii(im, A, fnii, descrip="", trnsp=None, flip=None, storage_as=None):
     hdr["cal_max"] = np.max(im)  # np.percentile(im, 90) #
     hdr["cal_min"] = np.min(im)
     hdr["descrip"] = descrip
-    nib.save(res, fnii)
+    nib.save(res, fspath(fnii))
 
 
 def niisort(fims, memlim=True):

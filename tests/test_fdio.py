@@ -6,9 +6,10 @@ from miutil import fdio
 
 
 def test_create_dir(tmp_path, caplog):
-    tmpdir = str(tmp_path / "create_dir")
-    assert not path.exists(tmpdir)
+    tmpdir = tmp_path / "create_dir"
+    assert not path.exists(fdio.fspath(tmpdir))
     fdio.create_dir(tmpdir)
+    tmpdir = fdio.fspath(tmpdir)
     assert path.exists(tmpdir)
     rmtree(tmpdir, True)
 
