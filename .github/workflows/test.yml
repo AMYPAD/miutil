@@ -32,10 +32,10 @@ jobs:
           reviewdog -f=pep8 -name=flake8 -tee -reporter=github-check -filter-mode nofilter
       env:
         REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - if: |
-        ! startsWith(matrix.python, '2')
-      run: pre-commit run -a --show-diff-on-failure black
-    - run: pre-commit run -a --show-diff-on-failure isort
+    - if: startsWith(matrix.python, '3')
+      run: pre-commit run -a --show-diff-on-failure
+    - if: startsWith(matrix.python, '2')
+      run: pre-commit run -a --show-diff-on-failure isort
   test:
     runs-on: ubuntu-latest
     strategy:
