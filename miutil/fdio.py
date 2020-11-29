@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 def create_dir(pth):
     """Equivalent of `mkdir -p`"""
-    if not path.exists(pth):
+    if not path.isdir(pth):
         try:
             makedirs(pth)
         except Exception as exc:
