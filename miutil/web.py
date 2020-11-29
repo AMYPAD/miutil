@@ -4,7 +4,7 @@ from os import W_OK, access, path, remove
 import requests
 from tqdm.auto import tqdm
 
-from .fdio import create_dir
+from .fdio import create_dir, fspath
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ def get_file(fname, origin, cache_dir=None, chunk_size=None):
     """
     if cache_dir is None:
         cache_dir = path.join("~", ".miutil")
-    cache_dir = path.expanduser(cache_dir)
+    cache_dir = path.expanduser(fspath(cache_dir))
     create_dir(cache_dir)
     if not access(cache_dir, W_OK):
         cache_dir = path.join("/tmp", ".miutil")
