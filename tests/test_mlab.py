@@ -1,9 +1,10 @@
 from pytest import importorskip
 
+engine = importorskip("matlab.engine")
+
 
 def test_matlab():
-    engine = importorskip("matlab.engine")
-    from miutil.mlab import get_engine
+    from miutil.mlab import beautify, get_engine
 
     assert not engine.find_matlab()
     eng = get_engine()
@@ -14,3 +15,6 @@ def test_matlab():
     assert engine.find_matlab()
     eng2 = get_engine()
     assert eng == eng2
+
+    eng = beautify.ensure_mbeautifier()
+    assert eng.MBeautify.formatFileNoEditor
