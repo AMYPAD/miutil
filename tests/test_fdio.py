@@ -1,12 +1,24 @@
+import logging
 from os import path
+from shutil import rmtree
 
 from miutil import fdio
 
 
-def test_create_dir(tmp_path):
+def test_create_dir(tmp_path, caplog):
     tmpdir = str(tmp_path / "create_dir")
     assert not path.exists(tmpdir)
     fdio.create_dir(tmpdir)
+    assert path.exists(tmpdir)
+    rmtree(tmpdir, True)
+
+    with open(tmpdir, "w") as fd:
+        fd.write("dummy file")
+    with caplog.at_level(logging.INFO):
+        assert "cannot create" not in caplog.text
+        fdio.create_dir(tmpdir)
+        assert "cannot create" in caplog.text
+
     assert path.exists(tmpdir)
 
 

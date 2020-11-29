@@ -1,14 +1,15 @@
+#!/usr/bin/env python3
 """CUDA helpers
 Usage:
-  miutil.cuinfo [options]
+  cuinfo [options]
 
 Options:
   -n, --num-devices   : print number of devices (ignores `-d`)
   -f, --nvcc-flags    : print out flags for use nvcc compilation
   -d ID, --dev-id ID  : select device ID [default: None:int] for all
 """
-from argopt import argopt
 import pynvml
+from argopt import argopt
 
 __all__ = ["num_devices", "compute_capability", "memory", "name", "nvcc_flags"]
 

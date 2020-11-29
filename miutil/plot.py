@@ -1,8 +1,38 @@
 from os import path
 from textwrap import dedent
+
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import cm
 
 from .imio import imread
+
+show = plt.show  # convenience: for use after `imscroll`
+
+
+def apply_cmap(**kwargs):
+    """Apply different cmaps to inputs an average the results.
+
+    Args:
+      **kwargs: map named cmap to ndarray
+
+    >>> vol1 = np.random.random((10, 10, 10))
+    >>> vol2 = np.random.random((10, 10, 10))
+    >>> res = apply_cmap(magma=vol1, bone=vol2)
+    >>> assert res.shape == (10, 10, 10, 4)  # RGBA
+    >>> imscroll(res[None])  # (1, 10, 10, 10, 4) for (N, Z, Y, X, RGBA)
+    """
+    res = None
+    for v in kwargs.values():
+        if res is None:
+            res = np.zeros(v.shape + (4,), dtype=np.float32)
+        else:
+            assert v.shape == res.shape[:-1], "all inputs must have same shape"
+    for k, v in kwargs.items():
+        cmap = getattr(cm, k)
+        res += cmap(v)
+    res /= len(kwargs)
+    return res
 
 
 class imscroll:
@@ -137,10 +167,7 @@ class imscroll:
             ]
         else:
             z = ndi.map_coordinates(
-                arr,
-                np.vstack((x, y)),
-                order=self.order,
-                mode="nearest",
+                arr, np.vstack((x, y)), order=self.order, mode="nearest"
             )
         self.picked = []
         self.key["control"] = False
