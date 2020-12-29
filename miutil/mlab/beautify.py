@@ -46,7 +46,10 @@ def main(*args, **kwargs):
 
     for fn in tmap(path.abspath, args.mfile):
         log.debug("file:%s", fn)
-        formatter(fn, fn, nargout=0)
+        try:
+            formatter(fn, fn, nargout=0)
+        except Exception as exc:
+            log.error("file:%s:\n%s", fn, exc)
 
 
 if __name__ == "__main__":  # pragma: no cover
