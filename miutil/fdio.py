@@ -19,7 +19,7 @@ def create_dir(pth):
         try:
             makedirs(pth)
         except Exception as exc:
-            log.warn("cannot create:%s:%s" % (pth, exc))
+            log.warning("cannot create:%s:%s" % (pth, exc))
 
 
 def hasext(fname, ext):
