@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [2.7, 3.5, 3.6, 3.9]
+        python: [2.7, 3.6, 3.9]
     name: Check py${{ matrix.python }}
     steps:
     - uses: actions/checkout@v2
@@ -48,7 +48,10 @@ jobs:
       with:
         python-version: ${{ matrix.python }}
     - run: pip install -U .[dev]
-    - run: pytest
+    - if: startsWith(matrix.python, '3')
+      run: pytest --durations-min=1
+    - if: startsWith(matrix.python, '2')
+      run: pytest
     - run: codecov
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -60,7 +63,7 @@ jobs:
       with:
         fetch-depth: 0
     - run: pip install -U .[dev,cuda]
-    - run: pytest
+    - run: pytest --durations-min=1
     - run: codecov
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
