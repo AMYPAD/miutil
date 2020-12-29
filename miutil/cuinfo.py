@@ -6,6 +6,7 @@ Usage:
 Options:
   -n, --num-devices   : print number of devices (ignores `-d`)
   -f, --nvcc-flags    : print out flags for use nvcc compilation
+  -c, --compute       : print out compute capabilities (strip periods)
   -d ID, --dev-id ID  : select device ID [default: None:int] for all
 """
 import pynvml
@@ -71,6 +72,9 @@ def main(*args, **kwargs):
         noargs = False
     if args.nvcc_flags:
         print(" ".join(sorted(set(map(nvcc_flags, devices)))[::-1]))
+        noargs = False
+    if args.compute:
+        print(" ".join(sorted({"%d%d" % compute_capability(i) for i in devices})[::-1]))
         noargs = False
     if noargs:
         for dev_id in devices:
