@@ -46,3 +46,7 @@ def test_cuinfo_cli(capsys):
     cuinfo.main(["--nvcc-flags"])
     out, _ = capsys.readouterr()
     assert not devices or out.startswith("-gencode=")
+
+    cuinfo.main(["--compute"])
+    out, _ = capsys.readouterr()
+    assert not devices or all(map(int, out.split(" ")))
