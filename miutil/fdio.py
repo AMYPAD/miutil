@@ -1,24 +1,31 @@
 import logging
-from collections import Iterable
 from contextlib import contextmanager
-from os import makedirs, path
+from os import makedirs
 from shutil import rmtree
 from tempfile import mkdtemp
 
 try:
+    from collections.abc import Iterable
+except ImportError:
+    from collections import Iterable
+try:
     from os import fspath
 except ImportError:
     fspath = str
+try:
+    from pathlib2 import Path
+except ImportError:
+    from pathlib import Path
 
 log = logging.getLogger(__name__)
 
 
 def create_dir(pth):
     """Equivalent of `mkdir -p`"""
-    pth = fspath(pth)
-    if not path.isdir(pth):
+    pth = Path(pth)
+    if not pth.is_dir():
         try:
-            makedirs(pth)
+            makedirs(fspath(pth))
         except Exception as exc:
             log.warning("cannot create:%s:%s" % (pth, exc))
 
