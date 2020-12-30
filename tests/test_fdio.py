@@ -24,16 +24,17 @@ def test_create_dir(tmp_path, caplog):
 
 def test_hasext():
     for fname, ext in [
+        (".baz", ".baz"),
         ("foo.bar", ".bar"),
         ("foo.bar", "bar"),
-        ("foo.bar.baz", "baz"),
+        ("foo.bar.baz", "bar.baz"),
         ("foo/bar.baz", "baz"),
+        ("foo.bar.baz", "baz"),
     ]:
         assert fdio.hasext(fname, ext)
 
     for fname, ext in [
         ("foo.bar", "baz"),
-        ("foo.bar.baz", "bar.baz"),
         ("foo", "foo"),
     ]:
         assert not fdio.hasext(fname, ext)

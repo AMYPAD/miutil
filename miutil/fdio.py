@@ -1,4 +1,5 @@
 import logging
+from collections import Iterable
 from contextlib import contextmanager
 from os import makedirs, path
 from shutil import rmtree
@@ -22,10 +23,15 @@ def create_dir(pth):
             log.warning("cannot create:%s:%s" % (pth, exc))
 
 
+def is_iter(x):
+    return isinstance(x, Iterable) and not isinstance(x, (str, bytes))
+
+
 def hasext(fname, ext):
-    if ext[0] != ".":
-        ext = "." + ext
-    return path.splitext(fspath(fname))[1].lower() == ext.lower()
+    if not is_iter(ext):
+        ext = (ext,)
+    ext = (("" if i[0] == "." else ".") + i.lower() for i in ext)
+    return fspath(fname).lower().endswith(tuple(ext))
 
 
 @contextmanager
