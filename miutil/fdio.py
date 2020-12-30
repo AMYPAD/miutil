@@ -1,7 +1,6 @@
 import logging
 from contextlib import contextmanager
 from os import makedirs
-from pathlib import Path
 from shutil import rmtree
 from tempfile import mkdtemp
 
@@ -13,6 +12,10 @@ try:
     from os import fspath
 except ImportError:
     fspath = str
+try:
+    from pathlib2 import Path
+except ImportError:
+    from pathlib import Path
 
 log = logging.getLogger(__name__)
 
