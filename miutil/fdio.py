@@ -1,10 +1,13 @@
 import logging
-from collections import Iterable
 from contextlib import contextmanager
 from os import makedirs, path
 from shutil import rmtree
 from tempfile import mkdtemp
 
+try:
+    from collections.abc import Iterable
+except ImportError:
+    from collections import Iterable
 try:
     from os import fspath
 except ImportError:
