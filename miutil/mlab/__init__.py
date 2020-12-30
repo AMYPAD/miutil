@@ -31,7 +31,7 @@ def get_engine(name=None):
         from matlab import engine
     except ImportError:
         try:
-            log.warn(
+            log.warning(
                 dedent(
                     """\
                 Python could not find the MATLAB engine.
@@ -125,5 +125,5 @@ def _install_engine():
         try:
             return check_output_u8(cmd, cwd=src)
         except CalledProcessError:
-            log.warn("Normal install failed. Attempting `--user` install.")
+            log.warning("Normal install failed. Attempting `--user` install.")
             return check_output_u8(cmd + ["--user"], cwd=src)

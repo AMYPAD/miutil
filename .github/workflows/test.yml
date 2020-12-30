@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ['2.7', '3.7']
+        python: [2.7, 3.6, 3.9]
     name: Check py${{ matrix.python }}
     steps:
     - uses: actions/checkout@v2
@@ -27,9 +27,7 @@ jobs:
     - uses: reviewdog/action-setup@v1
     - if: github.event_name != 'schedule'
       run: |
-        set -o pipefail
-        pre-commit run -a flake8 | \
-          reviewdog -f=pep8 -name=flake8 -tee -reporter=github-check -filter-mode nofilter
+        pre-commit run -a flake8 | reviewdog -f=pep8 -name=flake8 -tee -reporter=github-check -filter-mode nofilter
       env:
         REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - if: startsWith(matrix.python, '3')
@@ -40,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [2.7, 3.7]
+        python: [2.7, 3.5, 3.6, 3.9]
     name: Test py${{ matrix.python }}
     steps:
     - uses: actions/checkout@v2
@@ -50,7 +48,10 @@ jobs:
       with:
         python-version: ${{ matrix.python }}
     - run: pip install -U .[dev]
-    - run: python -m tests --cov-report=term-missing --cov-report=xml
+    - if: startsWith(matrix.python, '3')
+      run: pytest --durations-min=1
+    - if: startsWith(matrix.python, '2')
+      run: pytest
     - run: codecov
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -62,7 +63,7 @@ jobs:
       with:
         fetch-depth: 0
     - run: pip install -U .[dev,cuda]
-    - run: python -m tests --cov-report=term-missing --cov-report=xml
+    - run: pytest --durations-min=1
     - run: codecov
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

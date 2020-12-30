@@ -17,7 +17,7 @@ from ..web import get_file
 from . import get_engine
 
 log = logging.getLogger(__name__)
-MBEAUTIFIER_REV = "73bc3da7df39a60aab859a2cb86dd82b4d284312"
+MBEAUTIFIER_REV = "9c3c82387ec3c0fb29e707ebd060e8e2ca9ea6f2"
 
 
 @lru_cache()
@@ -26,7 +26,7 @@ def ensure_mbeautifier(*args, **kwargs):
     eng = get_engine(*args, **kwargs)
     fn = get_file(
         "MBeautifier-%s.zip" % MBEAUTIFIER_REV[:7],
-        "https://github.com/AMYPAD/MBeautifier/archive/%s.zip" % MBEAUTIFIER_REV,
+        "https://github.com/davidvarga/MBeautifier/archive/%s.zip" % MBEAUTIFIER_REV,
     )
     outpath = path.join(path.dirname(fn), "MBeautifier-%s" % MBEAUTIFIER_REV)
     if not path.exists(outpath):
@@ -46,7 +46,10 @@ def main(*args, **kwargs):
 
     for fn in tmap(path.abspath, args.mfile):
         log.debug("file:%s", fn)
-        formatter(fn, fn, nargout=0)
+        try:
+            formatter(fn, fn, nargout=0)
+        except Exception as exc:
+            log.error("file:%s:\n%s", fn, exc)
 
 
 if __name__ == "__main__":  # pragma: no cover
