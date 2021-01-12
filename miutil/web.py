@@ -1,10 +1,13 @@
 import logging
 from os import W_OK, access, path, remove
+from shutil import copyfileobj
+from urllib import request
+from urllib.parse import urlparse
 
 import requests
 from tqdm.auto import tqdm
 
-from .fdio import create_dir, fspath
+from .fdio import Path, create_dir, fspath
 
 log = logging.getLogger(__name__)
 
@@ -63,3 +66,31 @@ def get_file(fname, origin, cache_dir=None, chunk_size=None):
             raise
 
     return fpath
+
+
+def urlopen_cached(url, outdir, fname=None, mode="rb"):
+    """
+    Download `url` to `outdir/fname`.
+    Cache based on `url` at `outdir/fname`.url
+
+    Args:
+      url (str): source
+      outdir (path-like): destination
+      fname (str): optional, auto-detected from `url` if not given
+      mode (str): for returned file object
+    Returns:
+      file
+    """
+    outdir = Path(outdir).expanduser()
+    outdir.mkdir(exist_ok=True)
+    if fname is None:
+        fname = Path(urlparse(url).path).name
+    fout = outdir / fname
+    cache = outdir / (fspath(fname) + ".url")
+    if not fout.is_file() or not cache.is_file() or cache.read_text().strip() != url:
+        fi = request.urlopen(url)
+        with fout.open("wb") as raw:
+            with tqdm.wrapattr(raw, "write", total=getattr(fi, "length", None)) as fo:
+                copyfileobj(fi, fo)
+        cache.write_text(url)
+    return fout.open(mode)
