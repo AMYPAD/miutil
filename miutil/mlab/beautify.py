@@ -6,7 +6,7 @@ Arguments:
   <mfile>  : Path to `*.m` file
 """
 import logging
-from functools import lru_cache, wraps
+from functools import wraps
 from os import path
 from zipfile import ZipFile
 
@@ -14,7 +14,7 @@ from argopt import argopt
 from tqdm.contrib import tmap
 
 from ..web import get_file
-from . import get_engine
+from . import get_engine, lru_cache
 
 log = logging.getLogger(__name__)
 MBEAUTIFIER_REV = "9c3c82387ec3c0fb29e707ebd060e8e2ca9ea6f2"
