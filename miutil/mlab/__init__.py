@@ -88,7 +88,7 @@ def matlabroot(default=None):
     if IS_WIN:
         try:
             res = _matlab_run("display(matlabroot);")
-        except CalledProcessError:
+        except (CalledProcessError, FileNotFoundError):
             if default:
                 return default
             raise
@@ -96,7 +96,7 @@ def matlabroot(default=None):
 
     try:
         res = check_output_u8(["matlab", "-n"])
-    except CalledProcessError:
+    except (CalledProcessError, FileNotFoundError):
         if default:
             return default
         raise

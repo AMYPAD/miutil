@@ -31,13 +31,13 @@ def test_cuinfo_cli(capsys):
     # individual dev_id
     for dev_id in range(devices):
         cuinfo.main(["--dev-id", str(dev_id)])
-        out, _ = capsys.readouterr()
-        assert len(out.split("Device ")) == devices + 1
+    out, _ = capsys.readouterr()
+    assert out.count("Device ") == devices
 
     # all dev_ids
     cuinfo.main()
     out, _ = capsys.readouterr()
-    assert len(out.split("Device ")) == devices + 1
+    assert out.count("Device ") == devices
 
     # dev_id one too much
     with raises(IndexError):
