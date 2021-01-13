@@ -2,6 +2,8 @@ import logging
 from os import path
 from shutil import rmtree
 
+from pytest import importorskip
+
 from miutil import fdio
 
 
@@ -45,3 +47,18 @@ def test_tmpdir():
         assert path.exists(tmpdir)
         res = tmpdir
     assert not path.exists(res)
+
+
+def test_extractall(tmp_path):
+    web = importorskip("miutil.web")
+    tmpdir = tmp_path / "extractall"
+    assert not tmpdir.exists()
+    url = "https://github.com/AMYPAD/miutil/archive/v0.6.0.zip"
+    with web.urlopen_cached(url, tmpdir) as fd:
+        fdio.extractall(fd, tmpdir)
+
+    assert (tmpdir / "miutil-0.6.0" / "README.rst").is_file()
+    assert (
+        "Medical imaging utilities."
+        in (tmpdir / "miutil-0.6.0" / "README.rst").read_text()
+    )

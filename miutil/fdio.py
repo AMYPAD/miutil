@@ -1,8 +1,9 @@
 import logging
 from contextlib import contextmanager
 from os import makedirs
-from shutil import rmtree
+from shutil import copyfileobj, rmtree
 from tempfile import mkdtemp
+from zipfile import ZipFile
 
 try:
     from collections.abc import Iterable
@@ -13,9 +14,12 @@ try:
 except ImportError:
     fspath = str
 try:
-    from pathlib2 import Path
-except ImportError:
     from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
+
+from tqdm.auto import tqdm
+from tqdm.utils import CallbackIOWrapper
 
 log = logging.getLogger(__name__)
 
@@ -46,3 +50,21 @@ def tmpdir(*args, **kwargs):
     d = mkdtemp(*args, **kwargs)
     yield d
     rmtree(d)
+
+
+def extractall(fzip, dest, desc="Extracting"):
+    """zipfile.Zipfile(fzip).extractall(dest) with progress"""
+    dest = Path(dest).expanduser()
+    with ZipFile(fzip) as zipf, tqdm(
+        desc=desc,
+        unit="B",
+        unit_scale=True,
+        unit_divisor=1024,
+        total=sum(getattr(i, "file_size", 0) for i in zipf.infolist()),
+    ) as pbar:
+        for i in zipf.infolist():
+            if not getattr(i, "file_size", 0):  # directory
+                zipf.extract(i, fspath(dest))
+            else:
+                with zipf.open(i) as fi, open(fspath(dest / i.filename), "wb") as fo:
+                    copyfileobj(CallbackIOWrapper(pbar.update, fi), fo)

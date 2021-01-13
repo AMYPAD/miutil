@@ -13,9 +13,7 @@ except ImportError:
 try:
     FileNotFoundError
 except NameError:
-
-    class FileNotFoundError(OSError):
-        pass
+    FileNotFoundError = OSError
 
 
 from ..fdio import tmpdir
