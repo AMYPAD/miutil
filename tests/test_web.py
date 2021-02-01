@@ -1,6 +1,4 @@
-from pytest import importorskip
-
-web = importorskip("miutil.web")
+from miutil import web
 
 
 def test_get_file(tmp_path):
