@@ -1,8 +1,15 @@
 import logging
 from os import W_OK, access, path, remove
 from shutil import copyfileobj
-from urllib import request
-from urllib.parse import urlparse
+
+try:
+    from urllib.request import urlopen
+except ImportError:  # py27
+    from urllib import urlopen
+try:
+    from urllib.parse import urlparse
+except ImportError:  # py27
+    from urlparse import urlparse
 
 import requests
 from tqdm.auto import tqdm
@@ -88,9 +95,12 @@ def urlopen_cached(url, outdir, fname=None, mode="rb"):
     fout = outdir / fname
     cache = outdir / (fspath(fname) + ".url")
     if not fout.is_file() or not cache.is_file() or cache.read_text().strip() != url:
-        fi = request.urlopen(url)
+        fi = urlopen(url)
         with fout.open("wb") as raw:
             with tqdm.wrapattr(raw, "write", total=getattr(fi, "length", None)) as fo:
                 copyfileobj(fi, fo)
-        cache.write_text(url)
+        try:
+            cache.write_text(url)
+        except TypeError:
+            cache.write_text(url.decode("U8"))
     return fout.open(mode)
