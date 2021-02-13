@@ -69,4 +69,7 @@ def extractall(fzip, dest, desc="Extracting"):
                 (dest / i.filename).parent.mkdir(parents=True, exist_ok=True)
                 with zipf.open(i) as fi, (dest / i.filename).open(mode="wb") as fo:
                     copyfileobj(CallbackIOWrapper(pbar.update, fi), fo)
-                (dest / i.filename).chmod((i.external_attr >> 16) & 0o777)
+                mode = (i.external_attr >> 16) & 0o777
+                if mode:
+                    (dest / i.filename).chmod(mode)
+                    log.debug(oct((i.external_attr >> 16) & 0o777))
