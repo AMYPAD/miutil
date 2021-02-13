@@ -37,9 +37,12 @@ def test_runtime():
     importorskip("miutil.web")
     from miutil.mlab import get_runtime
 
-    matlab = get_runtime()
-    matlab2 = get_runtime()
-    assert matlab == matlab2
+    mcr_root = get_runtime()
+    for i in ("bin", "extern", "mcr", "runtime", "sys", "toolbox"):
+        assert (mcr_root / i).is_dir()
+
+    mcr_root2 = get_runtime()
+    assert mcr_root == mcr_root2
 
 
 def test_beautify(eng):

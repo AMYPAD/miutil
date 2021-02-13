@@ -204,6 +204,5 @@ def get_runtime(cache="~/.mcr"):
         sys.path.insert(1, fspath(pydist))
 
     log.info("Installed")
-    import matlab
 
-    return matlab
+    return mcr_root
