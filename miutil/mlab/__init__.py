@@ -59,7 +59,10 @@ def check_output_u8(*args, **kwargs):
 
 
 def env_prefix(key, dir):
-    os.environ[key] = "%s%s%s" % (os.environ[key], os.pathsep, fspath(dir))
+    try:
+        os.environ[key] = "%s%s%s" % (os.environ[key], os.pathsep, fspath(dir))
+    except KeyError:
+        os.environ[key] = str(fspath(dir))
 
 
 @lru_cache()
