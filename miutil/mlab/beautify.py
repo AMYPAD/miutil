@@ -17,7 +17,7 @@ from ..web import get_file
 from . import get_engine, lru_cache
 
 log = logging.getLogger(__name__)
-MBEAUTIFIER_REV = "9c3c82387ec3c0fb29e707ebd060e8e2ca9ea6f2"
+MBEAUTIFIER_REV = "1a57849e44662f56271dc0eefa746855698a719a"
 
 
 @lru_cache()
