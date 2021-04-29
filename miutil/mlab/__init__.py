@@ -1,8 +1,10 @@
 import logging
+import os
 import re
 import sys
 from ast import literal_eval
 from os import getenv, path
+from platform import system
 from subprocess import STDOUT, CalledProcessError, check_output
 from textwrap import dedent
 
@@ -16,7 +18,7 @@ except NameError:
     FileNotFoundError = OSError
 
 
-from ..fdio import tmpdir
+from ..fdio import Path, extractall, fspath, tmpdir
 
 __all__ = ["get_engine"]
 IS_WIN = any(sys.platform.startswith(i) for i in ["win32", "cygwin"])
@@ -24,6 +26,28 @@ MATLAB_RUN = "matlab -nodesktop -nosplash -nojvm".split()
 if IS_WIN:
     MATLAB_RUN += ["-wait", "-log"]
 log = logging.getLogger(__name__)
+_MCR_URL = {
+    99: (
+        "https://ssd.mathworks.com/supportfiles/downloads/R2020b/Release/4"
+        "/deployment_files/installer/complete/"
+    ),
+    713: "https://www.fil.ion.ucl.ac.uk/spm/download/restricted/utopia/MCR/",
+}
+MCR_ARCH = {"Windows": "win64", "Linux": "glnxa64", "Darwin": "maci64"}[system()]
+MCR_URL = {
+    "Windows": {
+        99: _MCR_URL[99] + "win64/MATLAB_Runtime_R2020b_Update_4_win64.zip",
+        713: _MCR_URL[713] + "win64/MCRInstaller.exe",
+    },
+    "Linux": {
+        99: _MCR_URL[99] + "glnxa64/MATLAB_Runtime_R2020b_Update_4_glnxa64.zip",
+        713: _MCR_URL[713] + "glnxa64/MCRInstaller.bin",
+    },
+    "Darwin": {
+        99: _MCR_URL[99] + "maci64/MATLAB_Runtime_R2020b_Update_4_maci64.dmg.zip",
+        713: _MCR_URL[713] + "maci64/MCRInstaller.dmg",
+    },
+}[system()]
 
 
 class VersionError(ValueError):
@@ -32,6 +56,13 @@ class VersionError(ValueError):
 
 def check_output_u8(*args, **kwargs):
     return check_output(*args, **kwargs).decode("utf-8").strip()
+
+
+def env_prefix(key, dir):
+    try:
+        os.environ[key] = "%s%s%s" % (os.environ[key], os.pathsep, fspath(dir))
+    except KeyError:
+        os.environ[key] = str(fspath(dir))
 
 
 @lru_cache()
@@ -69,6 +100,8 @@ install-matlab-engine-api-for-python-in-nondefault-locations.html
                   (e.g. /tmp/builddir).
                 - If installation fails due to write permissions, try appending `--user`
                   to the above command.
+
+                Alternatively, use `get_runtime()` instead of `get_engine()`.
                 """
                 ).format(
                     matlabroot=matlabroot(default="matlabroot"), exe=sys.executable
@@ -136,3 +169,88 @@ def _install_engine():
         except CalledProcessError:
             log.warning("Normal install failed. Attempting `--user` install.")
             return check_output_u8(cmd + ["--user"], cwd=src)
+
+
+@lru_cache()
+def get_runtime(cache="~/.mcr", version=99):
+    cache = Path(cache).expanduser()
+    mcr_root = cache
+    i = mcr_root / ("v%d" % version)
+    if i.is_dir():
+        mcr_root = i
+    else:
+        from miutil.web import urlopen_cached
+
+        log.info("Downloading to %s", cache)
+        with tmpdir() as td:
+            with urlopen_cached(MCR_URL[version], cache) as fd:
+                if MCR_URL[version].endswith(".zip"):
+                    extractall(fd, td)
+            log.info("Installing ... (may take a few min)")
+            if version == 99:
+                check_output_u8(
+                    [
+                        fspath(
+                            Path(td) / ("setup" if system() == "Windows" else "install")
+                        ),
+                        "-mode",
+                        "silent",
+                        "-agreeToLicense",
+                        "yes",
+                        "-destinationFolder",
+                        fspath(mcr_root),
+                    ]
+                )
+            elif version == 713:
+                install = cache / MCR_URL[version].rsplit("/", 1)[-1]
+                if system() == "Linux":
+                    install.chmod(0o755)
+                    check_output_u8(
+                        [
+                            fspath(install),
+                            "-P",
+                            'bean421.installLocation="%s"' % fspath(cache),
+                            "-silent",
+                        ]
+                    )
+                else:
+                    raise NotImplementedError(
+                        dedent(
+                            """\
+                        Don't yet know how to handle
+                        {}
+                        for {!r}.
+                        """
+                        ).format(fspath(install), system())
+                    )
+            else:
+                raise IndexError(version)
+            mcr_root /= "v%d" % version
+            log.info("Installed")
+
+    # bin
+    if (mcr_root / "bin" / MCR_ARCH).is_dir():
+        env_prefix("PATH", mcr_root / "bin" / MCR_ARCH)
+    else:
+        log.warning("Cannot find MCR bin")
+
+    # libs
+    env_var = {
+        "Linux": "LD_LIBRARY_PATH",
+        "Windows": "PATH",
+        "Darwin": "DYLD_LIBRARY_PATH",
+    }[system()]
+    if (mcr_root / "runtime" / MCR_ARCH).is_dir():
+        env_prefix(env_var, mcr_root / "runtime" / MCR_ARCH)
+    else:
+        log.warning("Cannot find MCR libs")
+
+    # python module
+    pydist = mcr_root / "extern" / "engines" / "python" / "dist"
+    if pydist.is_dir():
+        if fspath(pydist) not in sys.path:
+            sys.path.insert(1, fspath(pydist))
+    else:
+        log.warning("Cannot find MCR Python dist")
+
+    return mcr_root
