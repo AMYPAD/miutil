@@ -18,9 +18,17 @@ __all__ = ["num_devices", "compute_capability", "memory", "name", "nvcc_flags"]
 def nvmlDeviceGetCudaComputeCapability(handle):
     major = pynvml.c_int()
     minor = pynvml.c_int()
-    fn = pynvml.get_func_pointer("nvmlDeviceGetCudaComputeCapability")
+    try:  # pynvml>=11
+        get_fn = pynvml.nvml._nvmlGetFunctionPointer
+    except AttributeError:
+        get_fn = pynvml.get_func_pointer
+    fn = get_fn("nvmlDeviceGetCudaComputeCapability")
     ret = fn(handle, pynvml.byref(major), pynvml.byref(minor))
-    pynvml.check_return(ret)
+    try:  # pynvml>=11
+        check_ret = pynvml.nvml._nvmlCheckReturn
+    except AttributeError:
+        check_ret = pynvml.check_return
+    check_ret(ret)
     return [major.value, minor.value]
 
 
