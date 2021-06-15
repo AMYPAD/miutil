@@ -1,4 +1,4 @@
-from pytest import fixture, importorskip, skip
+from pytest import fixture, importorskip, mark, skip
 
 
 @fixture
@@ -30,6 +30,19 @@ def test_engine(eng):
 
     eng2 = get_engine()
     assert eng == eng2
+
+
+@mark.timeout(3600)
+def test_runtime():
+    importorskip("miutil.web")
+    from miutil.mlab import get_runtime
+
+    mcr_root = get_runtime()
+    for i in ("bin", "extern", "mcr", "runtime", "sys", "toolbox"):
+        assert (mcr_root / i).is_dir()
+
+    mcr_root2 = get_runtime()
+    assert mcr_root == mcr_root2
 
 
 def test_beautify(eng):

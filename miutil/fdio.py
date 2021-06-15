@@ -66,5 +66,10 @@ def extractall(fzip, dest, desc="Extracting"):
             if not getattr(i, "file_size", 0):  # directory
                 zipf.extract(i, fspath(dest))
             else:
-                with zipf.open(i) as fi, open(fspath(dest / i.filename), "wb") as fo:
+                (dest / i.filename).parent.mkdir(parents=True, exist_ok=True)
+                with zipf.open(i) as fi, (dest / i.filename).open(mode="wb") as fo:
                     copyfileobj(CallbackIOWrapper(pbar.update, fi), fo)
+                mode = (i.external_attr >> 16) & 0o777
+                if mode:
+                    (dest / i.filename).chmod(mode)
+                    log.debug(oct((i.external_attr >> 16) & 0o777))
