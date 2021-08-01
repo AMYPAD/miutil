@@ -85,7 +85,7 @@ jobs:
     - id: dist
       uses: casperdcl/deploy-pypi@v2
       with:
-        build: true
+        pip: true
         gpg_key: ${{ secrets.GPG_KEY }}
         password: ${{ secrets.PYPI_TOKEN }}
         upload: ${{ github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') }}
