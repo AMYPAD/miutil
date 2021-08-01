@@ -62,3 +62,8 @@ def test_extractall(tmp_path):
         "Medical imaging utilities."
         in (tmpdir / "miutil-0.6.0" / "README.rst").read_text()
     )
+
+
+def test_nsort():
+    fnames = ["foo1_bar_21.nii.gz", "foo1_bar_1.2.nii.gz", "foo1_bar_1.nii.gz"]
+    assert fdio.nsort(fnames) == fnames[::-1]
