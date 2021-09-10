@@ -2,17 +2,14 @@ name: Test
 on: [push, pull_request]
 jobs:
   check:
-    if: github.event_name != 'push' || github.ref != 'refs/heads/devel'
+    if: github.event_name != 'pull_request' || github.head_ref != 'devel'
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python: [2.7, 3.6, 3.9]
-    name: Check py${{ matrix.python }}
+    name: Check
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python }}
+        fetch-depth: 0
+    - uses: actions/setup-python@v2
     - name: set PYSHA
       run: echo "PYSHA=$(python -VV | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
     - uses: actions/cache@v1
@@ -35,8 +32,7 @@ jobs:
       env:
         REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         EVENT: ${{ github.event_name }}
-    - if: startsWith(matrix.python, '3')
-      run: pre-commit run -a --show-diff-on-failure
+    - run: pre-commit run -a --show-diff-on-failure
   test:
     if: github.event_name != 'pull_request' || github.head_ref != 'devel'
     runs-on: ubuntu-latest
@@ -57,10 +53,10 @@ jobs:
     - if: startsWith(matrix.python, '2')
       run: pytest
     - run: codecov
-  matlab:
+  cuda_matlab:
     if: github.event_name != 'pull_request' || github.head_ref != 'devel'
     runs-on: [self-hosted, python, cuda, matlab]
-    name: Test matlab & cuda
+    name: Test cuda & matlab
     steps:
     - uses: actions/checkout@v2
       with:
@@ -74,7 +70,7 @@ jobs:
       run: setup-python -p3.7 -Dr
       if: ${{ always() }}
   deploy:
-    needs: [check, test, matlab]
+    needs: [check, test, cuda_matlab]
     name: PyPI Deploy
     runs-on: ubuntu-latest
     steps:
@@ -85,37 +81,24 @@ jobs:
     - id: dist
       uses: casperdcl/deploy-pypi@v2
       with:
+        requirements: twine setuptools wheel setuptools_scm[toml]
         build: true
         gpg_key: ${{ secrets.GPG_KEY }}
         password: ${{ secrets.PYPI_TOKEN }}
-        upload: ${{ github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') }}
-    - name: Changelog
-      run: git log --pretty='format:%d%n- %s%n%b---' $(git tag --sort=v:refname | tail -n2 | head -n1)..HEAD > _CHANGES.md
-    - if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-      id: create_release
-      uses: actions/create-release@v1
+        upload: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags') }}
+    - id: meta
+      name: Changelog
+      run: |
+        echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+        git log --pretty='format:%d%n- %s%n%b---' $(git tag --sort=v:refname | tail -n2 | head -n1)..HEAD > _CHANGES.md
+    - if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: miutil ${{ github.ref }} beta
+        name: miutil ${{ steps.meta.outputs.tag }} beta
         body_path: _CHANGES.md
         draft: true
-    - if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/${{ steps.dist.outputs.whl }}
-        asset_name: ${{ steps.dist.outputs.whl }}
-        asset_content_type: application/zip
-    - if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/${{ steps.dist.outputs.whl_asc }}
-        asset_name: ${{ steps.dist.outputs.whl_asc }}
-        asset_content_type: text/plain
+        files: |
+          dist/${{ steps.dist.outputs.whl }}
+          dist/${{ steps.dist.outputs.whl_asc }}

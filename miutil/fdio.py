@@ -1,4 +1,5 @@
 import logging
+import re
 from contextlib import contextmanager
 from os import makedirs
 from shutil import copyfileobj, rmtree
@@ -73,3 +74,14 @@ def extractall(fzip, dest, desc="Extracting"):
                 if mode:
                     (dest / i.filename).chmod(mode)
                     log.debug(oct((i.external_attr >> 16) & 0o777))
+
+
+def nsort(fnames):
+    """Sort a file list, automatically detecting embedded numbers"""
+
+    def path2parts(fname):
+        parts = re.split(r"([0-9][0-9.]*e[-+][0-9]+|[0-9]+\.[0-9]+|[0-9]+)", fname)
+        parts[1::2] = map(float, parts[1::2])
+        return parts
+
+    return sorted(fnames, key=path2parts)
