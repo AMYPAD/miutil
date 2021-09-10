@@ -81,11 +81,7 @@ def nsort(fnames):
 
     def path2parts(fname):
         parts = re.split(r"([0-9][0-9.]*e[-+][0-9]+|[0-9]+\.[0-9]+|[0-9]+)", fname)
-        # log.debug(parts)
-        try:
-            parts[1::2] = map(float, parts[1::2])
-        except ValueError:  # file name starting with number
-            parts[::2] = map(float, parts[::2])
+        parts[1::2] = map(float, parts[1::2])
         return parts
 
     return sorted(fnames, key=path2parts)
