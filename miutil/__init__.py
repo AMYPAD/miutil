@@ -1,4 +1,4 @@
-from .fdio import *  # NOQA
+from .fdio import *  # yapf: disable # NOQA
 
 # version detector. Precedence: installed dist, git, 'UNKNOWN'
 try:

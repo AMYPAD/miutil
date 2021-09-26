@@ -52,5 +52,5 @@ def main(*args, **kwargs):
             log.error("file:%s:\n%s", fn, exc)
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__": # pragma: no cover
     main()

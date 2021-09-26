@@ -25,20 +25,11 @@ def test_create_dir(tmp_path, caplog):
 
 
 def test_hasext():
-    for fname, ext in [
-        (".baz", ".baz"),
-        ("foo.bar", ".bar"),
-        ("foo.bar", "bar"),
-        ("foo.bar.baz", "bar.baz"),
-        ("foo/bar.baz", "baz"),
-        ("foo.bar.baz", "baz"),
-    ]:
+    for fname, ext in [(".baz", ".baz"), ("foo.bar", ".bar"), ("foo.bar", "bar"),
+                       ("foo.bar.baz", "bar.baz"), ("foo/bar.baz", "baz"), ("foo.bar.baz", "baz")]:
         assert fdio.hasext(fname, ext)
 
-    for fname, ext in [
-        ("foo.bar", "baz"),
-        ("foo", "foo"),
-    ]:
+    for fname, ext in [("foo.bar", "baz"), ("foo", "foo")]:
         assert not fdio.hasext(fname, ext)
 
 
@@ -58,10 +49,7 @@ def test_extractall(tmp_path):
         fdio.extractall(fd, tmpdir)
 
     assert (tmpdir / "miutil-0.6.0" / "README.rst").is_file()
-    assert (
-        "Medical imaging utilities."
-        in (tmpdir / "miutil-0.6.0" / "README.rst").read_text()
-    )
+    assert ("Medical imaging utilities." in (tmpdir / "miutil-0.6.0" / "README.rst").read_text())
 
 
 def test_nsort():

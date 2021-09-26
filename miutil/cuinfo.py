@@ -18,13 +18,13 @@ __all__ = ["num_devices", "compute_capability", "memory", "name", "nvcc_flags"]
 def nvmlDeviceGetCudaComputeCapability(handle):
     major = pynvml.c_int()
     minor = pynvml.c_int()
-    try:  # pynvml>=11
+    try:      # pynvml>=11
         get_fn = pynvml.nvml._nvmlGetFunctionPointer
     except AttributeError:
         get_fn = pynvml.get_func_pointer
     fn = get_fn("nvmlDeviceGetCudaComputeCapability")
     ret = fn(handle, pynvml.byref(major), pynvml.byref(minor))
-    try:  # pynvml>=11
+    try:      # pynvml>=11
         check_ret = pynvml.nvml._nvmlCheckReturn
     except AttributeError:
         check_ret = pynvml.check_return
@@ -66,8 +66,7 @@ def name(dev_id=-1):
 
 def nvcc_flags(dev_id=-1):
     return "-gencode=arch=compute_{0:d}{1:d},code=compute_{0:d}{1:d}".format(
-        *compute_capability(dev_id)
-    )
+        *compute_capability(dev_id))
 
 
 def main(*args, **kwargs):
@@ -86,12 +85,9 @@ def main(*args, **kwargs):
         noargs = False
     if noargs:
         for dev_id in devices:
-            print(
-                "Device {:2d}:{}:compute capability:{:d}.{:d}".format(
-                    dev_id, name(dev_id), *compute_capability(dev_id)
-                )
-            )
+            print("Device {:2d}:{}:compute capability:{:d}.{:d}".format(
+                dev_id, name(dev_id), *compute_capability(dev_id)))
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__": # pragma: no cover
     main()

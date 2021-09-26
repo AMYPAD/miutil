@@ -7,7 +7,7 @@ from matplotlib import cm
 
 from .imio import imread
 
-show = plt.show  # convenience: for use after `imscroll`
+show = plt.show    # convenience: for use after `imscroll`
 
 
 def apply_cmap(**kwargs):
@@ -70,18 +70,13 @@ class imscroll:
             vol = [vol]
         elif ndim not in [4, 5]:
             raise IndexError(
-                dedent(
-                    """\
+                dedent("""\
                 Expected vol.ndim in
                     3: single volume
                     4: multiple volumes
                     5: multiple RGB volumes
                 but got {}
-                """.format(
-                        ndim
-                    )
-                )
-            )
+                """.format(ndim)))
 
         view = view.lower()
         if view in ["c", "coronal", "y"]:
@@ -112,7 +107,7 @@ class imscroll:
         self.fig.canvas.mpl_connect("key_press_event", self._on_key)
         self.fig.canvas.mpl_connect("key_release_event", self._off_key)
         self.fig.canvas.mpl_connect("button_press_event", self._on_click)
-        imscroll._instances.append(self)  # prevents gc
+        imscroll._instances.append(self) # prevents gc
 
     @classmethod
     def clear(cls, self):
@@ -162,13 +157,9 @@ class imscroll:
                     np.vstack((x, y, np.ones_like(x) * i)),
                     order=self.order,
                     mode="nearest",
-                )
-                for i in range(event.inaxes.images[0].get_array().shape[-1])
-            ]
+                ) for i in range(event.inaxes.images[0].get_array().shape[-1])]
         else:
-            z = ndi.map_coordinates(
-                arr, np.vstack((x, y)), order=self.order, mode="nearest"
-            )
+            z = ndi.map_coordinates(arr, np.vstack((x, y)), order=self.order, mode="nearest")
         self.picked = []
         self.key["control"] = False
 

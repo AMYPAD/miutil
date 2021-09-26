@@ -86,22 +86,20 @@ def getnii(fim, nan_replace=None, output="image"):
         flip = tuple(np.int8(ornt[:, 1]))
 
         # > voxel size
-        voxsize = nim.header.get("pixdim")[1 : nim.header.get("dim")[0] + 1]
+        voxsize = nim.header.get("pixdim")[1:nim.header.get("dim")[0] + 1]
         # > rearrange voxel size according to the orientation
         voxsize = voxsize[np.array(trnsp)]
 
         # > dimensions
-        dims = dim[1 : nim.header.get("dim")[0] + 1]
+        dims = dim[1:nim.header.get("dim")[0] + 1]
         dims = dims[np.array(trnsp)]
 
         # > flip y-axis and z-axis and then transpose.
         # Depends if dynamic (4 dimensions) or static (3 dimensions)
         if dimno == 4:
-            imr = np.transpose(
-                imr[:: -flip[0], :: -flip[1], :: -flip[2], :], (3,) + trnsp
-            )
+            imr = np.transpose(imr[::-flip[0], ::-flip[1], ::-flip[2], :], (3,) + trnsp)
         elif dimno == 3:
-            imr = np.transpose(imr[:: -flip[0], :: -flip[1], :: -flip[2]], trnsp)
+            imr = np.transpose(imr[::-flip[0], ::-flip[1], ::-flip[2]], trnsp)
 
     if output == "affine" or output == "all":
         # A = nim.get_sform()
@@ -111,17 +109,8 @@ def getnii(fim, nan_replace=None, output="image"):
 
     if output == "all":
         out = {
-            "im": imr,
-            "affine": A,
-            "fim": fim,
-            "dtype": nim.get_data_dtype(),
-            "shape": imr.shape,
-            "hdr": nim.header,
-            "voxsize": voxsize,
-            "dims": dims,
-            "transpose": trnsp,
-            "flip": flip,
-        }
+            "im": imr, "affine": A, "fim": fim, "dtype": nim.get_data_dtype(), "shape": imr.shape,
+            "hdr": nim.header, "voxsize": voxsize, "dims": dims, "transpose": trnsp, "flip": flip}
     elif output == "image":
         out = imr
     elif output == "affine":
@@ -161,11 +150,7 @@ def array2nii(im, A, fnii, descrip="", trnsp=None, flip=None, storage_as=None):
     # >>as obtained from getnii(..., output='all')
 
     # > permute the axis order in the image array
-    if (
-        isinstance(storage_as, dict)
-        and "transpose" in storage_as
-        and "flip" in storage_as
-    ):
+    if (isinstance(storage_as, dict) and "transpose" in storage_as and "flip" in storage_as):
 
         trnsp = (
             storage_as["transpose"].index(0),
@@ -186,12 +171,12 @@ def array2nii(im, A, fnii, descrip="", trnsp=None, flip=None, storage_as=None):
 
     # > perform flip of x,y,z axes after transposition into proper NIfTI order
     if len(flip) == 3:
-        im = im[:: -flip[0], :: -flip[1], :: -flip[2], ...]
+        im = im[::-flip[0], ::-flip[1], ::-flip[2], ...]
 
     res = nib.Nifti1Image(im, A)
     hdr = res.header
     hdr.set_sform(None, code="scanner")
-    hdr["cal_max"] = np.max(im)  # np.percentile(im, 90) #
+    hdr["cal_max"] = np.max(im) # np.percentile(im, 90) #
     hdr["cal_min"] = np.min(im)
     hdr["descrip"] = descrip
     nib.save(res, fspath(fnii))
@@ -266,12 +251,8 @@ def niisort(fims, memlim=True):
         raise ValueError("Input image(s) must be 3D.")
 
     out = {
-        "shape": _nii.shape[::-1],
-        "files": _fims,
-        "sortlist": sortlist,
-        "dtype": _nii.get_data_dtype(),
-        "N": Nim,
-    }
+        "shape": _nii.shape[::-1], "files": _fims, "sortlist": sortlist,
+        "dtype": _nii.get_data_dtype(), "N": Nim}
 
     if memlim and Nfrm > 50:
         imdic = getnii(_fims[0], output="all")
@@ -328,12 +309,11 @@ def nii_modify(nii_fd, fimout="", outpath="", fcomment="", voxel_range=None):
     log.debug("output floating and affine file names:%s", fout)
     fout = os.path.join(opth, fout)
 
-    if len(voxel_range) == 1:  # set max value
+    if len(voxel_range) == 1:                                               # set max value
         im = voxel_range[0] * dctnii["im"] / np.max(dctnii["im"])
-    elif len(voxel_range) == 2:  # set range
-        im = (dctnii["im"] - np.min(dctnii["im"])) * (
-            np.ptp(voxel_range) / np.ptp(dctnii["im"])
-        ) + voxel_range[0]
+    elif len(voxel_range) == 2:                                             # set range
+        im = (dctnii["im"] - np.min(dctnii["im"])) * (np.ptp(voxel_range) /
+                                                      np.ptp(dctnii["im"])) + voxel_range[0]
     else:
         return None
 

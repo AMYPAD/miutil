@@ -57,14 +57,14 @@ def extractall(fzip, dest, desc="Extracting"):
     """zipfile.Zipfile(fzip).extractall(dest) with progress"""
     dest = Path(dest).expanduser()
     with ZipFile(fzip) as zipf, tqdm(
-        desc=desc,
-        unit="B",
-        unit_scale=True,
-        unit_divisor=1024,
-        total=sum(getattr(i, "file_size", 0) for i in zipf.infolist()),
+            desc=desc,
+            unit="B",
+            unit_scale=True,
+            unit_divisor=1024,
+            total=sum(getattr(i, "file_size", 0) for i in zipf.infolist()),
     ) as pbar:
         for i in zipf.infolist():
-            if not getattr(i, "file_size", 0):  # directory
+            if not getattr(i, "file_size", 0): # directory
                 zipf.extract(i, fspath(dest))
             else:
                 (dest / i.filename).parent.mkdir(parents=True, exist_ok=True)
@@ -78,7 +78,6 @@ def extractall(fzip, dest, desc="Extracting"):
 
 def nsort(fnames):
     """Sort a file list, automatically detecting embedded numbers"""
-
     def path2parts(fname):
         parts = re.split(r"([0-9][0-9.]*e[-+][0-9]+|[0-9]+\.[0-9]+|[0-9]+)", fname)
         parts[1::2] = map(float, parts[1::2])
