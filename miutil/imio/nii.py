@@ -4,16 +4,20 @@ import logging
 import numbers
 import os.path
 import re
+import sys
 
 import nibabel as nib
 import numpy as np
-from six import string_types
 
 from ..fdio import create_dir, fspath, hasext
 from . import RE_NII_GZ
 
 RE_GZ = re.compile(r"^(.+)(\.gz)$", flags=re.I)
 log = logging.getLogger(__name__)
+if sys.version_info[0] < 3:
+    string_types = basestring, # NOQA: F821
+else:
+    string_types = str,
 
 
 def file_parts(fname, regex=RE_NII_GZ):
