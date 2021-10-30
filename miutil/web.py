@@ -4,11 +4,11 @@ from shutil import copyfileobj
 
 try:
     from urllib.request import urlopen
-except ImportError:  # py27
+except ImportError: # py27
     from urllib import urlopen
 try:
     from urllib.parse import urlparse
-except ImportError:  # py27
+except ImportError: # py27
     from urlparse import urlparse
 
 import requests
@@ -54,12 +54,12 @@ def get_file(fname, origin, cache_dir=None, chunk_size=None):
         try:
             d = requests.get(origin, stream=True)
             with tqdm(
-                total=float(d.headers.get("Content-length") or 0),
-                desc=fname,
-                unit="B",
-                unit_scale=True,
-                unit_divisor=1024,
-                leave=False,
+                    total=float(d.headers.get("Content-length") or 0),
+                    desc=fname,
+                    unit="B",
+                    unit_scale=True,
+                    unit_divisor=1024,
+                    leave=False,
             ) as fprog:
                 with open(fpath, "wb") as fo:
                     for chunk in d.iter_content(chunk_size=chunk_size):

@@ -17,7 +17,7 @@ from ..web import get_file
 from . import get_engine, lru_cache
 
 log = logging.getLogger(__name__)
-MBEAUTIFIER_REV = "1a57849e44662f56271dc0eefa746855698a719a"
+MBEAUTIFIER_REV = "6005eeb8b17be8a40be32cea73005cf0d36de4e9"
 
 
 @lru_cache()
@@ -52,5 +52,5 @@ def main(*args, **kwargs):
             log.error("file:%s:\n%s", fn, exc)
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__": # pragma: no cover
     main()
