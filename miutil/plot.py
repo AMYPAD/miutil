@@ -45,7 +45,7 @@ class imscroll:
     _instances = []
     _SUPPORTED_KEYS = ["control", "shift"]
 
-    def __init__(self, vol, view="t", fig=None, titles=None, order=0, **kwargs):
+    def __init__(self, vol, view="t", fig=None, titles=None, order=0, sharexy=None, **kwargs):
         """
         Scroll through 2D slices of 3D volume(s) using the mouse.
         Args:
@@ -56,6 +56,7 @@ class imscroll:
             titles (list): list of strings (overrides `vol.keys()`).
             order (int): spline interpolation order for line profiles.
                 0: nearest, 1: bilinear, >2: probably avoid.
+            sharexy (bool): whether to link zoom across all axes.
             **kwargs: passed to `matplotlib.pyplot.imshow()`.
         """
         if isinstance(vol, str) and path.exists(vol):
@@ -88,10 +89,12 @@ class imscroll:
         self.titles = titles or [None] * len(vol)
         self.index_max = min(map(len, vol))
         self.index = self.index_max // 2
+        if sharexy is None:
+            sharexy = len({i.shape for i in vol}) == 1
         if fig is not None:
-            self.fig, axs = fig, fig.subplots(1, len(vol))
+            self.fig, axs = fig, fig.subplots(1, len(vol), sharex=sharexy, sharey=sharexy)
         else:
-            self.fig, axs = plt.subplots(1, len(vol))
+            self.fig, axs = plt.subplots(1, len(vol), sharex=sharexy, sharey=sharexy)
         self.axs = [axs] if len(vol) == 1 else list(axs.flat)
         for ax, i, t in zip(self.axs, vol, self.titles):
             ax.imshow(i[self.index], **kwargs)
