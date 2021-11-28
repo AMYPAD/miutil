@@ -45,7 +45,8 @@ class imscroll:
     _instances = []
     _SUPPORTED_KEYS = ["control", "shift"]
 
-    def __init__(self, vol, view="t", fig=None, titles=None, order=0, sharexy=None, **kwargs):
+    def __init__(self, vol, view="t", fig=None, titles=None, order=0, sharexy=None, show=False,
+                 **kwargs):
         """
         Scroll through 2D slices of 3D volume(s) using the mouse.
         Args:
@@ -57,6 +58,7 @@ class imscroll:
             order (int): spline interpolation order for line profiles.
                 0: nearest, 1: bilinear, >2: probably avoid.
             sharexy (bool): whether to link zoom across all axes.
+            show (bool): whether to run `matplotlib.pyplot.show()`.
             **kwargs: passed to `matplotlib.pyplot.imshow()`.
         """
         if isinstance(vol, str) and path.exists(vol):
@@ -111,6 +113,8 @@ class imscroll:
         self.fig.canvas.mpl_connect("key_release_event", self._off_key)
         self.fig.canvas.mpl_connect("button_press_event", self._on_click)
         imscroll._instances.append(self) # prevents gc
+        if show:
+            plt.show()
 
     @classmethod
     def clear(cls, self):
