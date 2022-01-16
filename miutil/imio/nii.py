@@ -55,7 +55,7 @@ def nii_gzip(imfile, outpath=""):
     return fout
 
 
-def getnii(fim, nan_replace=None, output="image"):
+def getnii(fim, nan_replace=None, output='image'):
     """
     Get PET image from NIfTI file.
     Arguments:
@@ -71,10 +71,10 @@ def getnii(fim, nan_replace=None, output="image"):
     """
     nim = nib.load(fspath(fim))
 
-    dim = nim.header.get("dim")
+    dim = nim.header.get('dim')
     dimno = dim[0]
 
-    if output == "image" or output == "all":
+    if output == 'image' or output == 'all':
         imr = np.asanyarray(nim.dataobj)
         # replace NaNs if requested
         if isinstance(nan_replace, numbers.Number):
@@ -90,34 +90,33 @@ def getnii(fim, nan_replace=None, output="image"):
         flip = tuple(np.int8(ornt[:, 1]))
 
         # > voxel size
-        voxsize = nim.header.get("pixdim")[1:nim.header.get("dim")[0] + 1]
+        voxsize = nim.header.get('pixdim')[1:nim.header.get('dim')[0] + 1]
         # > rearrange voxel size according to the orientation
         voxsize = voxsize[np.array(trnsp)]
 
         # > dimensions
-        dims = dim[1:nim.header.get("dim")[0] + 1]
+        dims = dim[1:nim.header.get('dim')[0] + 1]
         dims = dims[np.array(trnsp)]
 
-        # > flip y-axis and z-axis and then transpose.
-        # Depends if dynamic (4 dimensions) or static (3 dimensions)
-        if dimno == 4:
+        # > flip y-axis and z-axis and then transpose
+        if dimno == 4:   # dynamic
             imr = np.transpose(imr[::-flip[0], ::-flip[1], ::-flip[2], :], (3,) + trnsp)
-        elif dimno == 3:
+        elif dimno == 3: # static
             imr = np.transpose(imr[::-flip[0], ::-flip[1], ::-flip[2]], trnsp)
 
-    if output == "affine" or output == "all":
+    if output == 'affine' or output == 'all':
         # A = nim.get_sform()
         # if not A[:3,:3].any():
         #     A = nim.get_qform()
         A = nim.affine
 
-    if output == "all":
+    if output == 'all':
         out = {
-            "im": imr, "affine": A, "fim": fim, "dtype": nim.get_data_dtype(), "shape": imr.shape,
-            "hdr": nim.header, "voxsize": voxsize, "dims": dims, "transpose": trnsp, "flip": flip}
-    elif output == "image":
+            'im': imr, 'affine': A, 'fim': fim, 'dtype': nim.get_data_dtype(), 'shape': imr.shape,
+            'hdr': nim.header, 'voxsize': voxsize, 'dims': dims, 'transpose': trnsp, 'flip': flip}
+    elif output == 'image':
         out = imr
-    elif output == "affine":
+    elif output == 'affine':
         out = A
     else:
         raise NameError("Unrecognised output request!")
@@ -154,15 +153,12 @@ def array2nii(im, A, fnii, descrip="", trnsp=None, flip=None, storage_as=None):
     # >>as obtained from getnii(..., output='all')
 
     # > permute the axis order in the image array
-    if (isinstance(storage_as, dict) and "transpose" in storage_as and "flip" in storage_as):
+    if (isinstance(storage_as, dict) and 'transpose' in storage_as and 'flip' in storage_as):
 
-        trnsp = (
-            storage_as["transpose"].index(0),
-            storage_as["transpose"].index(1),
-            storage_as["transpose"].index(2),
-        )
+        trnsp = (storage_as['transpose'].index(0), storage_as['transpose'].index(1),
+                 storage_as['transpose'].index(2))
 
-        flip = storage_as["flip"]
+        flip = storage_as['flip']
 
     if not trnsp:
         im = im.transpose()
@@ -179,10 +175,10 @@ def array2nii(im, A, fnii, descrip="", trnsp=None, flip=None, storage_as=None):
 
     res = nib.Nifti1Image(im, A)
     hdr = res.header
-    hdr.set_sform(None, code="scanner")
-    hdr["cal_max"] = np.max(im) # np.percentile(im, 90) #
-    hdr["cal_min"] = np.min(im)
-    hdr["descrip"] = descrip
+    hdr.set_sform(None, code='scanner')
+    hdr['cal_max'] = np.max(im) # np.percentile(im, 90) #
+    hdr['cal_min'] = np.min(im)
+    hdr['descrip'] = descrip
     nib.save(res, fspath(fnii))
 
 
@@ -255,23 +251,23 @@ def niisort(fims, memlim=True):
         raise ValueError("Input image(s) must be 3D.")
 
     out = {
-        "shape": _nii.shape[::-1], "files": _fims, "sortlist": sortlist,
-        "dtype": _nii.get_data_dtype(), "N": Nim}
+        'shape': _nii.shape[::-1], 'files': _fims, 'sortlist': sortlist,
+        'dtype': _nii.get_data_dtype(), 'N': Nim}
 
     if memlim and Nfrm > 50:
-        imdic = getnii(_fims[0], output="all")
-        affine = imdic["affine"]
+        imdic = getnii(_fims[0], output='all')
+        affine = imdic['affine']
     else:
         # get the images into an array
         _imin = np.zeros((Nfrm,) + _nii.shape[::-1], dtype=_nii.get_data_dtype())
         for i in range(Nfrm):
             if i in sortlist:
-                imdic = getnii(_fims[i], output="all")
-                _imin[i, :, :, :] = imdic["im"]
-                affine = imdic["affine"]
-        out["im"] = _imin[:Nfrm, :, :, :]
+                imdic = getnii(_fims[i], output='all')
+                _imin[i, :, :, :] = imdic['im']
+                affine = imdic['affine']
+        out['im'] = _imin[:Nfrm, :, :, :]
 
-    out["affine"] = affine
+    out['affine'] = affine
 
     return out
 

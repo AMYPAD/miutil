@@ -78,6 +78,7 @@ def extractall(fzip, dest, desc="Extracting"):
 
 def nsort(fnames):
     """Sort a file list, automatically detecting embedded numbers"""
+
     def path2parts(fname):
         parts = re.split(r"([0-9][0-9.]*e[-+][0-9]+|[0-9]+\.[0-9]+|[0-9]+)", fname)
         parts[1::2] = map(float, parts[1::2])
