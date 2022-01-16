@@ -43,9 +43,10 @@ class imscroll:
     """
 
     _instances = []
-    _SUPPORTED_KEYS = ["control", "shift"]
+    _SUPPORTED_KEYS = ['control', 'shift']
 
-    def __init__(self, vol, view="t", fig=None, titles=None, order=0, **kwargs):
+    def __init__(self, vol, view='t', fig=None, titles=None, order=0, sharexy=None, show=False,
+                 **kwargs):
         """
         Scroll through 2D slices of 3D volume(s) using the mouse.
         Args:
@@ -56,6 +57,8 @@ class imscroll:
             titles (list): list of strings (overrides `vol.keys()`).
             order (int): spline interpolation order for line profiles.
                 0: nearest, 1: bilinear, >2: probably avoid.
+            sharexy (bool): whether to link zoom across all axes.
+            show (bool): whether to run `matplotlib.pyplot.show()`.
             **kwargs: passed to `matplotlib.pyplot.imshow()`.
         """
         if isinstance(vol, str) and path.exists(vol):
@@ -79,19 +82,21 @@ class imscroll:
                 """.format(ndim)))
 
         view = view.lower()
-        if view in ["c", "coronal", "y"]:
+        if view in ['c', 'coronal', 'y']:
             vol = [i.transpose(1, 0, 2) for i in vol]
-        elif view in ["s", "saggital", "x"]:
+        elif view in ['s', 'saggital', 'x']:
             vol = [i.transpose(2, 0, 1) for i in vol]
 
         # volumes
         self.titles = titles or [None] * len(vol)
         self.index_max = min(map(len, vol))
         self.index = self.index_max // 2
+        if sharexy is None:
+            sharexy = len({i.shape for i in vol}) == 1
         if fig is not None:
-            self.fig, axs = fig, fig.subplots(1, len(vol))
+            self.fig, axs = fig, fig.subplots(1, len(vol), sharex=sharexy, sharey=sharexy)
         else:
-            self.fig, axs = plt.subplots(1, len(vol))
+            self.fig, axs = plt.subplots(1, len(vol), sharex=sharexy, sharey=sharexy)
         self.axs = [axs] if len(vol) == 1 else list(axs.flat)
         for ax, i, t in zip(self.axs, vol, self.titles):
             ax.imshow(i[self.index], **kwargs)
@@ -103,28 +108,30 @@ class imscroll:
         self._annotes = []
         # event callbacks
         self.key = {i: False for i in self._SUPPORTED_KEYS}
-        self.fig.canvas.mpl_connect("scroll_event", self._scroll)
-        self.fig.canvas.mpl_connect("key_press_event", self._on_key)
-        self.fig.canvas.mpl_connect("key_release_event", self._off_key)
-        self.fig.canvas.mpl_connect("button_press_event", self._on_click)
+        self.fig.canvas.mpl_connect('scroll_event', self._scroll)
+        self.fig.canvas.mpl_connect('key_press_event', self._on_key)
+        self.fig.canvas.mpl_connect('key_release_event', self._off_key)
+        self.fig.canvas.mpl_connect('button_press_event', self._on_click)
         imscroll._instances.append(self) # prevents gc
+        if show:
+            plt.show()
 
     @classmethod
     def clear(cls, self):
         cls._instances.clear()
 
     def _on_key(self, event):
-        key = {"ctrl": "control"}.get(event.key, event.key)
+        key = {'ctrl': 'control'}.get(event.key, event.key)
         if key in self._SUPPORTED_KEYS:
             self.key[key] = True
 
     def _off_key(self, event):
-        key = {"ctrl": "control"}.get(event.key, event.key)
+        key = {'ctrl': 'control'}.get(event.key, event.key)
         if key in self._SUPPORTED_KEYS:
             self.key[key] = False
 
     def _scroll(self, event):
-        self.set_index(self.index + event.step * (10 if self.key["shift"] else 1))
+        self.set_index(self.index + event.step * (10 if self.key['shift'] else 1))
 
     def set_index(self, index):
         self.index = int(index) % self.index_max
@@ -137,7 +144,7 @@ class imscroll:
         self.fig.canvas.draw()
 
     def _on_click(self, event):
-        if not self.key["control"] or None in (event.xdata, event.ydata):
+        if not self.key['control'] or None in (event.xdata, event.ydata):
             return
         self.picked.append((event.xdata, event.ydata))
         if len(self.picked) < 2:
@@ -156,20 +163,20 @@ class imscroll:
                     arr,
                     np.vstack((x, y, np.ones_like(x) * i)),
                     order=self.order,
-                    mode="nearest",
+                    mode='nearest',
                 ) for i in range(event.inaxes.images[0].get_array().shape[-1])]
         else:
-            z = ndi.map_coordinates(arr, np.vstack((x, y)), order=self.order, mode="nearest")
+            z = ndi.map_coordinates(arr, np.vstack((x, y)), order=self.order, mode='nearest')
         self.picked = []
-        self.key["control"] = False
+        self.key['control'] = False
 
-        self._annotes.append(event.inaxes.plot([x0, x1], [y0, y1], "r-")[0])
+        self._annotes.append(event.inaxes.plot([x0, x1], [y0, y1], 'r-')[0])
         plt.figure()
         if arr.ndim == 3:
-            for channel, colour in zip(z, "rgbcmyk"):
-                plt.plot(x, channel, colour + "-")
+            for channel, colour in zip(z, 'rgbcmyk'):
+                plt.plot(x, channel, colour + '-')
         else:
-            plt.plot(x, z, "r-")
+            plt.plot(x, z, 'r-')
         plt.xlabel("x")
         plt.ylabel("Intensity")
         plt.show()
