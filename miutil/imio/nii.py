@@ -86,7 +86,7 @@ def getnii(fim, nan_replace=None, output='image'):
 
         # > get orientations from the affine
         ornt = nib.io_orientation(nim.affine)
-        trnsp = tuple(np.int8([ornt[2, 0], ornt[1, 0], ornt[0, 0]]))
+        trnsp = tuple(np.flip(np.argsort(ornt[:, 0])))
         flip = tuple(np.int8(ornt[:, 1]))
 
         # > voxel size
