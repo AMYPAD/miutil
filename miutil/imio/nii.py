@@ -55,11 +55,69 @@ def nii_gzip(imfile, outpath=""):
     return fout
 
 
+
+def getmgh(fim, nan_replace=None, output='image'):
+    '''
+    Get image from `*.mgz` or `*.mgh` file (FreeSurfer).
+    Arguments:
+        fim: input file name for the MGH/Z image
+        output: option for choosing output: 'image', 'affine' matrix or 
+                'all' for a dictionary with all the info.
+    Return:
+        'image': outputs just the image
+        'affine': outputs just the affine matrix
+        'all': outputs all as a dictionary
+    '''
+
+    mgh = nib.freesurfer.load(fspath(fim))
+
+    if output == 'image' or output == 'all':
+        
+        imr = np.asanyarray(mgh.dataobj)
+        # replace NaNs if requested
+        if isinstance(nan_replace, numbers.Number):
+            imr[np.isnan(imr)] = nan_replace
+
+        imr = np.squeeze(imr)
+        dimno = imr.ndim
+
+        # > get orientations from the affine
+        ornt = nib.io_orientation(mgh.affine)
+        trnsp = tuple(np.flip(np.argsort(ornt[:, 0])))
+        flip = tuple(np.int8(ornt[:, 1]))
+
+        # > flip y-axis and z-axis and then transpose
+        if dimno == 4:   # dynamic
+            imr = np.transpose(imr[::-flip[0], ::-flip[1], ::-flip[2], :], (3,) + trnsp)
+        elif dimno == 3: # static
+            imr = np.transpose(imr[::-flip[0], ::-flip[1], ::-flip[2]], trnsp)
+
+
+        # # > voxel size
+        # voxsize = mgh.header.get('pixdim')[1:mgh.header.get('dim')[0] + 1]
+        # # > rearrange voxel size according to the orientation
+        # voxsize = voxsize[np.array(trnsp)]
+
+
+    if output == 'all':
+        out = {
+            'im': imr, 'affine': mgh.affine, 'fim': fim, 'dtype': mgh.get_data_dtype(), 'shape': imr.shape,
+            'hdr': mgh.header, 'transpose': trnsp, 'flip': flip}
+    elif output == 'image':
+        out = imr
+    elif output == 'affine':
+        out = mgh.affine
+    else:
+        raise NameError("Unrecognised output request!")
+
+    return out
+
+
 def getnii(fim, nan_replace=None, output='image'):
     """
-    Get PET image from NIfTI file.
+    Get image from NIfTI file.
     Arguments:
-        fim: input file name for the nifty image
+        fim: input file name for the NIfTI image
         nan_replace: the value to be used for replacing the NaNs in the image.
                      by default no change (None).
         output: option for choosing output: image, affine matrix or
