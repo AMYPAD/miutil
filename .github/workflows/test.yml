@@ -6,7 +6,7 @@ on:
   - cron: '15 23 * * 6'  # M H d m w (Sat at 23:15)
 jobs:
   check:
-    if: github.event_name != 'pull_request' || github.repository_owner != 'AMYPAD'
+    if: github.event_name != 'pull_request' || !contains('OWNER,MEMBER,COLLABORATOR', github.event.pull_request.author_association)
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -35,7 +35,7 @@ jobs:
         EVENT: ${{ github.event_name }}
     - run: pre-commit run -a --show-diff-on-failure
   test:
-    if: github.event_name != 'pull_request' || github.repository_owner != 'AMYPAD'
+    if: github.event_name != 'pull_request' || !contains('OWNER,MEMBER,COLLABORATOR', github.event.pull_request.author_association)
     name: py${{ matrix.python }}
     runs-on: ubuntu-latest
     strategy:
@@ -55,7 +55,7 @@ jobs:
       run: pytest
     - uses: codecov/codecov-action@v1
   cuda_matlab:
-    if: github.event_name != 'pull_request' || github.repository_owner != 'AMYPAD'
+    if: github.event_name != 'pull_request' || !contains('OWNER,MEMBER,COLLABORATOR', github.event.pull_request.author_association)
     name: CUDA MATLAB py${{ matrix.python }}
     runs-on: [self-hosted, python, cuda, matlab]
     strategy:
