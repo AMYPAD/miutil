@@ -9,10 +9,6 @@ from subprocess import STDOUT, CalledProcessError, check_output
 from textwrap import dedent
 
 try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
-try:
     FileNotFoundError
 except NameError:
     FileNotFoundError = OSError
@@ -57,7 +53,6 @@ def env_prefix(key, dir):
         os.environ[key] = str(fspath(dir))
 
 
-@lru_cache()
 def get_engine(name=None):
     try:
         from matlab import engine
@@ -96,7 +91,11 @@ install-matlab-engine-api-for-python-in-nondefault-locations.html
     if not started or (name and name not in started):
         notify = True
         log.debug("Starting MATLAB")
-    eng = engine.connect_matlab(name=name or getenv("SPM12_MATLAB_ENGINE", None))
+    try:
+        eng = engine.connect_matlab(name=name or getenv("SPM12_MATLAB_ENGINE", None))
+    except engine.EngineError:
+        log.error("MATLAB hasn't properly cleaner up. Try restarting your computer.")
+        raise
     if notify:
         log.debug("MATLAB started")
     return eng
@@ -148,7 +147,6 @@ def _install_engine():
             return check_output_u8(cmd + ["--user"], cwd=src)
 
 
-@lru_cache()
 def get_runtime(cache="~/.mcr", version=99):
     cache = Path(cache).expanduser()
     mcr_root = cache
