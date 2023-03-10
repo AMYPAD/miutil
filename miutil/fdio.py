@@ -1,23 +1,12 @@
 import logging
 import re
+from collections.abc import Iterable
 from contextlib import contextmanager
-from os import makedirs
+from os import fspath, makedirs
+from pathlib import Path
 from shutil import copyfileobj, rmtree
 from tempfile import mkdtemp
 from zipfile import ZipFile
-
-try:
-    from collections.abc import Iterable
-except ImportError:
-    from collections import Iterable
-try:
-    from os import fspath
-except ImportError:
-    fspath = str
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
 
 from tqdm.auto import tqdm
 from tqdm.utils import CallbackIOWrapper
@@ -32,7 +21,7 @@ def create_dir(pth):
         try:
             makedirs(fspath(pth))
         except Exception as exc:
-            log.warning("cannot create:%s:%s" % (pth, exc))
+            log.warning("cannot create:%s:%s", pth, exc)
 
 
 def is_iter(x):

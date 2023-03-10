@@ -49,9 +49,9 @@ def check_output_u8(*args, **kwargs):
 
 def env_prefix(key, dir):
     try:
-        os.environ[key] = "%s%s%s" % (os.environ[key], os.pathsep, fspath(dir))
+        os.environ[key] = f"{os.environ[key]}{os.pathsep}{fspath(dir)}"
     except KeyError:
-        os.environ[key] = str(fspath(dir))
+        os.environ[key] = fspath(dir)
 
 
 @lru_cache()
@@ -148,7 +148,7 @@ def _install_engine():
 def get_runtime(cache="~/.mcr", version=99):
     cache = Path(cache).expanduser()
     mcr_root = cache
-    i = mcr_root / ("v%d"%version)
+    i = mcr_root / f"v{version}"
     if i.is_dir():
         mcr_root = i
     else:
@@ -170,8 +170,8 @@ def get_runtime(cache="~/.mcr", version=99):
                 if system() == "Linux":
                     install.chmod(0o755)
                     check_output_u8([
-                        fspath(install), "-P",
-                        'bean421.installLocation="%s"' % fspath(cache), "-silent"])
+                        fspath(install), "-P", f'bean421.installLocation="{fspath(cache)}"',
+                        "-silent"])
                 else:
                     raise NotImplementedError(
                         dedent("""\
@@ -181,7 +181,7 @@ def get_runtime(cache="~/.mcr", version=99):
                         """).format(fspath(install), system()))
             else:
                 raise IndexError(version)
-            mcr_root /= "v%d" % version
+            mcr_root /= f"v{version}"
             log.info("Installed")
 
     # bin
