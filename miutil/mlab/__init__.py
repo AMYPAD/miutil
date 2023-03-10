@@ -3,6 +3,7 @@ import os
 import re
 import sys
 from ast import literal_eval
+from functools import lru_cache
 from os import getenv, path
 from platform import system
 from subprocess import STDOUT, CalledProcessError, check_output
@@ -53,6 +54,7 @@ def env_prefix(key, dir):
         os.environ[key] = str(fspath(dir))
 
 
+@lru_cache()
 def get_engine(name=None):
     try:
         from matlab import engine
@@ -86,18 +88,13 @@ install-matlab-engine-api-for-python-in-nondefault-locations.html
 
                 Alternatively, use `get_runtime()` instead of `get_engine()`.
                 """).format(matlabroot=matlabroot(default="matlabroot"), exe=sys.executable))
-    started = engine.find_matlab()
-    notify = False
-    if not started or (name and name not in started):
-        notify = True
-        log.debug("Starting MATLAB")
+    log.debug("Starting MATLAB")
     try:
         eng = engine.connect_matlab(name=name or getenv("SPM12_MATLAB_ENGINE", None))
     except engine.EngineError:
-        log.error("MATLAB hasn't properly cleaner up. Try restarting your computer.")
+        log.error("MATLAB hasn't properly cleaned up. Try restarting your computer.")
         raise
-    if notify:
-        log.debug("MATLAB started")
+    log.debug("MATLAB started")
     return eng
 
 
@@ -147,6 +144,7 @@ def _install_engine():
             return check_output_u8(cmd + ["--user"], cwd=src)
 
 
+@lru_cache()
 def get_runtime(cache="~/.mcr", version=99):
     cache = Path(cache).expanduser()
     mcr_root = cache

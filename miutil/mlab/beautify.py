@@ -14,12 +14,13 @@ from argopt import argopt
 from tqdm.contrib import tmap
 
 from ..web import get_file
-from . import get_engine
+from . import get_engine, lru_cache
 
 log = logging.getLogger(__name__)
 MBEAUTIFIER_REV = "6005eeb8b17be8a40be32cea73005cf0d36de4e9"
 
 
+@lru_cache()
 @wraps(get_engine)
 def ensure_mbeautifier(*args, **kwargs):
     eng = get_engine(*args, **kwargs)
