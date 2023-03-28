@@ -79,6 +79,7 @@ install-matlab-engine-api-for-python-in-nondefault-locations.html
                 It's likely you need to do:
 
                 cd "{matlabroot}\\extern\\engines\\python"
+                {exe} -m pip install 'setuptools<66'
                 {exe} setup.py build --build-base="BUILDDIR" install
 
                 - Fill in any temporary directory name for BUILDDIR
