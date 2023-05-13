@@ -25,10 +25,10 @@ MBEAUTIFIER_REV = "6005eeb8b17be8a40be32cea73005cf0d36de4e9"
 def ensure_mbeautifier(*args, **kwargs):
     eng = get_engine(*args, **kwargs)
     fn = get_file(
-        "MBeautifier-%s.zip" % MBEAUTIFIER_REV[:7],
-        "https://github.com/davidvarga/MBeautifier/archive/%s.zip" % MBEAUTIFIER_REV,
+        f"MBeautifier-{MBEAUTIFIER_REV[:7]}.zip",
+        f"https://github.com/davidvarga/MBeautifier/archive/{MBEAUTIFIER_REV}.zip",
     )
-    outpath = path.join(path.dirname(fn), "MBeautifier-%s" % MBEAUTIFIER_REV)
+    outpath = path.join(path.dirname(fn), f"MBeautifier-{MBEAUTIFIER_REV}")
     if not path.exists(outpath):
         with ZipFile(fn) as fd:
             fd.extractall(path=path.dirname(outpath))
