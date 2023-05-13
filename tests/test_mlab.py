@@ -14,7 +14,7 @@ def eng():
     try:
         res = get_engine()
     except Exception as exc:
-        skip("MATLAB not found:\n%s" % exc)
+        skip(f"MATLAB not found:\n{exc}")
 
     if engine is None:
         from matlab import engine

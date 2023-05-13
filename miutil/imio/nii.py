@@ -174,7 +174,7 @@ def array2nii(im, A, fnii, descrip="", trnsp=None, flip=None, storage_as=None):
     if len(flip) == 3:
         im = im[::-flip[0], ::-flip[1], ::-flip[2], ...]
 
-    res = nib.Nifti1Image(im, A)
+    res = nib.Nifti1Image(im, A, dtype=im.dtype)
     hdr = res.header
     hdr.set_sform(None, code='scanner')
     hdr['cal_max'] = np.max(im) # np.percentile(im, 90) #

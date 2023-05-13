@@ -42,7 +42,7 @@ To install extras and their dependencies,
 use the package name ``miutil[option1,option2]``.
 
 
-.. |Tests| image:: https://img.shields.io/github/workflow/status/AMYPAD/miutil/Test?logo=GitHub
+.. |Tests| image:: https://img.shields.io/github/actions/workflow/status/AMYPAD/miutil/test.yml?branch=master&logo=GitHub
    :target: https://github.com/AMYPAD/miutil/actions
 .. |Coverage| image:: https://codecov.io/gh/AMYPAD/miutil/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/AMYPAD/miutil

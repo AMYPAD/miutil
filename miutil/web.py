@@ -50,7 +50,7 @@ def get_file(fname, origin, cache_dir=None, chunk_size=None):
     fpath = path.join(cache_dir, fname)
 
     if not path.exists(fpath):
-        log.debug("Downloading %s from %s" % (fpath, origin))
+        log.debug("Downloading %s from %s", fpath, origin)
         try:
             d = requests.get(origin, stream=True)
             with tqdm(
@@ -93,7 +93,7 @@ def urlopen_cached(url, outdir, fname=None, mode="rb"):
     if fname is None:
         fname = Path(urlparse(url).path).name
     fout = outdir / fname
-    cache = outdir / (fspath(fname) + ".url")
+    cache = outdir / f"{fspath(fname)}.url"
     if not fout.is_file() or not cache.is_file() or cache.read_text().strip() != url:
         fi = urlopen(url)
         with fout.open("wb") as raw:

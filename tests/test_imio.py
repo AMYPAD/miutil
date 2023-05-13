@@ -27,4 +27,4 @@ def test_nii(tmp_path):
     fname = tmp_path / "test_nii.nii"
     nii.array2nii(x, np.eye(4), fname, flip=(1, 1, 1))
     nii.nii_gzip(fname)
-    assert (imread(fspath(fname) + ".gz") == x).all()
+    assert (imread(f"{fspath(fname)}.gz") == x).all()

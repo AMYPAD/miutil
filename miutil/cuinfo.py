@@ -61,7 +61,11 @@ def memory(dev_id=-1):
 
 def name(dev_id=-1):
     """returns device name"""
-    return pynvml.nvmlDeviceGetName(get_handle(dev_id)).decode("U8")
+    res = pynvml.nvmlDeviceGetName(get_handle(dev_id))
+    try:
+        return res.decode("U8") # pynvml<11.5
+    except AttributeError:
+        return res
 
 
 def nvcc_flags(dev_id=-1):
