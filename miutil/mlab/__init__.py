@@ -78,7 +78,7 @@ install-the-matlab-engine-for-python.html
 install-matlab-engine-api-for-python-in-nondefault-locations.html
                 It's likely you need to do:
 
-                cd "{matlabroot}\\extern\\engines\\python"
+                cd "{setup_dir}"
                 {exe} -m pip install 'setuptools<66'
                 {exe} setup.py build --build-base="BUILDDIR" install
 
@@ -88,7 +88,9 @@ install-matlab-engine-api-for-python-in-nondefault-locations.html
                   to the above command.
 
                 Alternatively, use `get_runtime()` instead of `get_engine()`.
-                """).format(matlabroot=matlabroot(default="matlabroot"), exe=sys.executable))
+                """).format(
+                    setup_dir=path.join(matlabroot(default="matlabroot"), "extern", "engines",
+                                        "python"), exe=sys.executable))
     log.debug("Starting MATLAB")
     try:
         eng = engine.connect_matlab(name=name or getenv("SPM12_MATLAB_ENGINE", None))
