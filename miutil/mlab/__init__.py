@@ -78,7 +78,7 @@ install-the-matlab-engine-for-python.html
 install-matlab-engine-api-for-python-in-nondefault-locations.html
                 It's likely you need to do:
 
-                cd "{matlabroot}\\extern\\engines\\python"
+                cd "{setup_dir}"
                 {exe} -m pip install 'setuptools<66'
                 {exe} setup.py build --build-base="BUILDDIR" install
 
@@ -88,7 +88,9 @@ install-matlab-engine-api-for-python-in-nondefault-locations.html
                   to the above command.
 
                 Alternatively, use `get_runtime()` instead of `get_engine()`.
-                """).format(matlabroot=matlabroot(default="matlabroot"), exe=sys.executable))
+                """).format(
+                    setup_dir=path.join(matlabroot(default="matlabroot"), "extern", "engines",
+                                        "python"), exe=sys.executable))
     log.debug("Starting MATLAB")
     try:
         eng = engine.connect_matlab(name=name or getenv("SPM12_MATLAB_ENGINE", None))
@@ -127,7 +129,8 @@ def matlabroot(default=None):
 
 def _install_engine():
     src = path.join(matlabroot(), "extern", "engines", "python")
-    with open(path.join(src, "setup.py")) as fd: # check version support
+    with open(path.join(src, "setup.py")) as fd:
+        # check version support
         supported = literal_eval(
             re.search(r"supported_version.*?=\s*(.*?)$", fd.read(), flags=re.M).group(1))
         if ".".join(map(str, sys.version_info[:2])) not in map(str, supported):
@@ -142,7 +145,18 @@ def _install_engine():
             return check_output_u8(cmd, cwd=src)
         except CalledProcessError:
             log.warning("Normal install failed. Attempting `--user` install.")
-            return check_output_u8(cmd + ["--user"], cwd=src)
+            try:
+                return check_output_u8(cmd + ["--user"], cwd=src)
+            except CalledProcessError:
+                ml_ver = src.split(path.sep)[-4].lstrip("R")
+                if ml_ver < '2020b':
+                    raise
+                eng_ver = {
+                    '2020b': '9.9', '2021a': '9.10', '2021b': '9.11', '2022a': '9.12',
+                    '2022b': '9.13', '2023a': '9.14'}
+                pin = f"=={eng_ver[ml_ver]}.*" if ml_ver in eng_ver else ""
+                return check_output_u8([
+                    sys.executable, "-m", "pip", "install", "matlabengine" + pin])
 
 
 @lru_cache()
