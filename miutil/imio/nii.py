@@ -55,7 +55,6 @@ def nii_gzip(imfile, outpath=""):
     return fout
 
 
-
 def getnii(fim, nan_replace=None, output='image'):
     """
     Get image from NIfTI file.
