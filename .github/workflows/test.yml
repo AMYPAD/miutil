@@ -65,7 +65,7 @@ jobs:
         fetch-depth: 0
     - name: Run setup-python
       run: setup-python -p${{ matrix.python }}
-    - run: pip install -U .[dev,nii,cuda,web,mbeautify]
+    - run: pip install -U .[dev,nii,cuda,web,mbeautify] 'setuptools<66' # ignore matlab engine PEP440 non-compliance https://github.com/pypa/setuptools/issues/3772
     - run: pytest --durations-min=1
     - uses: codecov/codecov-action@v3
     - name: Post Run setup-python
@@ -85,8 +85,7 @@ jobs:
     - id: dist
       uses: casperdcl/deploy-pypi@v2
       with:
-        requirements: twine setuptools wheel setuptools_scm[toml]
-        build: true
+        pip: true
         gpg_key: ${{ secrets.GPG_KEY }}
         password: ${{ secrets.PYPI_TOKEN }}
         upload: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags') }}

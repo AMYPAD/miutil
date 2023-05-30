@@ -57,9 +57,9 @@ def nii_gzip(imfile, outpath=""):
 
 def getnii(fim, nan_replace=None, output='image'):
     """
-    Get PET image from NIfTI file.
+    Get image from NIfTI file.
     Arguments:
-        fim: input file name for the nifty image
+        fim: input file name for the NIfTI image
         nan_replace: the value to be used for replacing the NaNs in the image.
                      by default no change (None).
         output: option for choosing output: image, affine matrix or

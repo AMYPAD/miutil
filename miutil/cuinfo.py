@@ -89,7 +89,7 @@ def main(*args, **kwargs):
         noargs = False
     if noargs:
         for dev_id in devices:
-            print("Device {:2d}:{}:compute capability:{:d}.{:d}".format(
+            print("Device {:2d}:{}:compute capability:{:d}.{:d}".format( # NOQA: P101
                 dev_id, name(dev_id), *compute_capability(dev_id)))
 
 

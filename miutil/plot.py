@@ -78,7 +78,7 @@ class imscroll:
                     3: single volume
                     4: multiple volumes
                     5: multiple RGB volumes
-                but got {}
+                but got {0}
                 """.format(ndim)))
 
         view = view.lower()
@@ -100,7 +100,7 @@ class imscroll:
         self.axs = [axs] if len(vol) == 1 else list(axs.flat)
         for ax, i, t in zip(self.axs, vol, self.titles):
             ax.imshow(i[self.index], **kwargs)
-            ax.set_title(t or "slice #{}".format(self.index))
+            ax.set_title(t or f"slice #{self.index}")
         self.vols = vol
         # line profiles
         self.order = order
@@ -137,7 +137,7 @@ class imscroll:
         self.index = int(index) % self.index_max
         for ax, vol, t in zip(self.axs, self.vols, self.titles):
             ax.images[0].set_array(vol[self.index])
-            ax.set_title(t or "slice #{}".format(self.index))
+            ax.set_title(t or f"slice #{self.index}")
         for ann in self._annotes:
             ann.remove()
         self._annotes = []
