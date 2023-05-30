@@ -189,8 +189,8 @@ def get_runtime(cache="~/.mcr", version=99):
                     raise NotImplementedError(
                         dedent("""\
                         Don't yet know how to handle
-                        {}
-                        for {!r}.
+                        {0}
+                        for {1!r}.
                         """).format(fspath(install), system()))
             else:
                 raise IndexError(version)
