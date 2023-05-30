@@ -80,17 +80,15 @@ install-matlab-engine-api-for-python-in-nondefault-locations.html
 
                 cd "{setup_dir}"
                 {exe} -m pip install 'setuptools<66'
-                {exe} setup.py build --build-base="BUILDDIR" install
+                {exe} setup.py build --build-base="BUILDDIR" install --prefix="{pre}"
 
                 - Fill in any temporary directory name for BUILDDIR
                   (e.g. /tmp/builddir).
-                - If installation fails due to write permissions, try appending `--user`
-                  to the above command.
 
                 Alternatively, use `get_runtime()` instead of `get_engine()`.
                 """).format(
                     setup_dir=path.join(matlabroot(default="matlabroot"), "extern", "engines",
-                                        "python"), exe=sys.executable))
+                                        "python"), exe=sys.executable, pre=sys.prefix))
     log.debug("Starting MATLAB")
     try:
         eng = engine.connect_matlab(name=name or getenv("SPM12_MATLAB_ENGINE", None))
@@ -142,7 +140,7 @@ def _install_engine():
     with tmpdir() as td:
         cmd = [sys.executable, "setup.py", "build", "--build-base", td, "install"]
         try:
-            return check_output_u8(cmd, cwd=src)
+            return check_output_u8(cmd + ["--prefix", sys.prefix], cwd=src)
         except CalledProcessError:
             log.warning("Normal install failed. Attempting `--user` install.")
             try:
