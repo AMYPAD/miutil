@@ -149,6 +149,9 @@ def _install_engine():
                 ml_ver = src.split(path.sep)[-4].lstrip("R")
                 if ml_ver < '2020b':
                     raise
+                # list needs to be updated as per
+                # https://pypi.org/project/matlabengine
+                # https://www.mathworks.com/support/requirements/python-compatibility.html
                 eng_ver = {
                     '2020b': '9.9', '2021a': '9.10', '2021b': '9.11', '2022a': '9.12',
                     '2022b': '9.13', '2023a': '9.14'}
