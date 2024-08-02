@@ -257,6 +257,8 @@ def niisort(fims, memlim=True):
     if memlim and Nfrm > 50:
         imdic = getnii(_fims[0], output='all')
         affine = imdic['affine']
+        flip = imdic['flip']
+        trnsp = imdic['transpose']
     else:
         # get the images into an array
         _imin = np.zeros((Nfrm,) + _nii.shape[::-1], dtype=_nii.get_data_dtype())
@@ -265,9 +267,13 @@ def niisort(fims, memlim=True):
                 imdic = getnii(_fims[i], output='all')
                 _imin[i, :, :, :] = imdic['im']
                 affine = imdic['affine']
+                flip = imdic['flip']
+                trnsp = imdic['transpose']
         out['im'] = _imin[:Nfrm, :, :, :]
 
     out['affine'] = affine
+    out['flip'] = flip
+    out['transpose'] = trnsp
 
     return out
 
