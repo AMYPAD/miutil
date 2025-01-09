@@ -11,25 +11,28 @@ Options:
 """
 import pynvml
 from argopt import argopt
+from subprocess import run
+import re
+import numpy as np
 
 __all__ = ["num_devices", "compute_capability", "memory", "name", "nvcc_flags"]
 
 
-def nvmlDeviceGetCudaComputeCapability(handle):
-    major = pynvml.c_int()
-    minor = pynvml.c_int()
-    try:      # pynvml>=11
-        get_fn = pynvml.nvml._nvmlGetFunctionPointer
-    except AttributeError:
-        get_fn = pynvml.get_func_pointer
-    fn = get_fn("nvmlDeviceGetCudaComputeCapability")
-    ret = fn(handle, pynvml.byref(major), pynvml.byref(minor))
-    try:      # pynvml>=11
-        check_ret = pynvml.nvml._nvmlCheckReturn
-    except AttributeError:
-        check_ret = pynvml.check_return
-    check_ret(ret)
-    return [major.value, minor.value]
+# def nvmlDeviceGetCudaComputeCapability(handle):
+#     major = pynvml.c_int()
+#     minor = pynvml.c_int()
+#     try:      # pynvml>=11
+#         get_fn = pynvml.nvml._nvmlGetFunctionPointer
+#     except AttributeError:
+#         get_fn = pynvml.get_func_pointer
+#     fn = get_fn("nvmlDeviceGetCudaComputeCapability")
+#     ret = fn(handle, pynvml.byref(major), pynvml.byref(minor))
+#     try:      # pynvml>=11
+#         check_ret = pynvml.nvml._nvmlCheckReturn
+#     except AttributeError:
+#         check_ret = pynvml.check_return
+#     check_ret(ret)
+#     return [major.value, minor.value]
 
 
 def num_devices():
@@ -50,7 +53,18 @@ def get_handle(dev_id=-1):
 
 def compute_capability(dev_id=-1):
     """returns compute capability (major, minor)"""
-    return tuple(nvmlDeviceGetCudaComputeCapability(get_handle(dev_id)))
+    
+    rslt = run(
+        ['nvidia-smi', '--query-gpu=compute_cap', '--format=csv,noheader'],
+        capture_output=True,
+        text=True)
+
+    cc = [int(m) for m in re.findall(r'\d+', rslt.stdout)]
+    cc = np.reshape(cc, (-1,2))
+
+    return tuple(cc[dev_id])
+    # > this was the old, unsustainable way...:
+    # return tuple(nvmlDeviceGetCudaComputeCapability(get_handle(dev_id)))
 
 
 def memory(dev_id=-1):
