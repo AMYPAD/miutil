@@ -53,13 +53,23 @@ def get_handle(dev_id=-1):
 
 def compute_capability(dev_id=-1):
     """returns compute capability (major, minor)"""
+
+    # > test if CUDA is installed
+    try:
+        nvcc = run(
+            ['nvcc', '--version'],
+            capture_output=True,
+            text=True)
+    except:
+        return tuple([0,0])
+
     
-    rslt = run(
+    nsmi = run(
         ['nvidia-smi', '--query-gpu=compute_cap', '--format=csv,noheader'],
         capture_output=True,
         text=True)
 
-    cc = [int(m) for m in re.findall(r'\d+', rslt.stdout)]
+    cc = [int(m) for m in re.findall(r'\d+', nsmi.stdout)]
     cc = np.reshape(cc, (-1,2))
 
     return tuple(cc[dev_id])
