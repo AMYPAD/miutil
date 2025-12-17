@@ -54,7 +54,7 @@ dependencies = ["tqdm>=4.40.0"]
 dev = ["pytest>=6", "pytest-cov", "pytest-timeout", "pytest-xdist"]
 nii = ["nibabel>=4.0", "numpy"]
 plot = ["matplotlib", "numpy", "scipy"]
-cuda = ["argopt", "pynvml"]
+cuda = ["argopt", "nvidia-ml-py"]
 web = ["requests"]
 mbeautify = ["argopt", "tqdm>=4.42.0", "requests"]  # web
 
